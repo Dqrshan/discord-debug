@@ -17,9 +17,15 @@ import commands, {
     source
 } from './commands';
 import fs from 'fs';
+import { Options } from './typings';
 
 class Debugger {
     public owners: Snowflake[];
+    /**
+     * Main Debugger Client
+     * @param client Discord Client
+     * @param options Debugger options
+     */
     public constructor(public client: Client, public options?: Options) {
         fs.readFileSync('debug.config', { flag: 'a+' });
         this.owners = options?.owners ?? this._syncOwners();
@@ -136,6 +142,7 @@ class Debugger {
                     break;
             }
         }
+        return message;
     }
 
     private _syncOwners() {
@@ -218,11 +225,6 @@ class Debugger {
         else if (type === 'debug')
             console.debug(`${blueBright('[Debugger: DEBUG]')} ${message}`);
     }
-}
-
-export interface Options {
-    owners?: Snowflake[];
-    secrets?: any[];
 }
 
 export { Debugger, commands };

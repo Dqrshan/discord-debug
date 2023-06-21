@@ -7,13 +7,12 @@ import {
 } from 'discord.js';
 import type { Debugger } from '../';
 import { System, DateFormat } from '../lib';
-import { version } from '../../package.json';
 
 export async function main(message: Message, parent: Debugger) {
     const intents = new IntentsBitField(parent.client.options.intents);
     const embed = new EmbedBuilder()
         .setTitle(
-            `Debugger v${version}, discord.js \`${djsVersion}\`, \`Node.js ${process.version}\` on \`${process.platform}\``
+            `discord.js \`${djsVersion}\`, \`Node.js ${process.version}\` on \`${process.platform}\``
         )
         .addFields(
             {

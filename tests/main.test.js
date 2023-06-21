@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
-const { Debugger } = require('../dist/src');
+const { Debugger } = require('../dist');
 
 const { token } = require('./config');
 
