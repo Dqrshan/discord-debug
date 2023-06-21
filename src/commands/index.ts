@@ -1,6 +1,5 @@
 import { Collection } from 'discord.js';
 import { readdirSync } from 'fs';
-import { CommandData, CommandName } from '../typings';
 
 export * from './curl';
 export * from './js';
@@ -58,3 +57,9 @@ export default commands;
 export const Commands = readdirSync('src/commands')
     .filter((file) => file.endsWith('.ts') && file.split('.')[0] !== 'index')
     .map((f) => f.split('.')[0]);
+
+export type CommandName = (typeof Commands)[number];
+export type CommandData = {
+    aliases: string[];
+    description: string;
+};

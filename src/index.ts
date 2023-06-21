@@ -17,7 +17,6 @@ import commands, {
     source
 } from './commands';
 import fs from 'fs';
-import { Options } from './typings';
 
 class Debugger {
     public owners: Snowflake[];
@@ -228,3 +227,7 @@ class Debugger {
 }
 
 export { Debugger, commands };
+export interface Options {
+    owners?: Snowflake[];
+    secrets?: any[];
+}
