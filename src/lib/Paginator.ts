@@ -207,8 +207,11 @@ export class Paginator {
     }
 
     genText() {
-        return this.options.noCode && this.splitted.length < 2
-            ? `${this.splitted[this.page - 1]}`
+        return this.splitted.length === 1
+            ? `${codeBlock.construct(
+                  this.splitted[this.page - 1]!,
+                  this.options.lang
+              )}`
             : `${codeBlock.construct(
                   this.splitted[this.page - 1]!,
                   this.options.lang
