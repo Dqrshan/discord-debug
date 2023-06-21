@@ -1,6 +1,6 @@
 {
     "name": "discord-debug",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A simple discord.js debugging tool",
     "main": "dist/index.js",
     "scripts": {
