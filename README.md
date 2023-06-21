@@ -51,7 +51,7 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-client.login(token);
+client.login('token');
 ```
 
 ---
@@ -84,27 +84,47 @@ const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
 ## ⚡️ Features
 
 -   ### `main`
+
     Shows the main debug information
+
     ![main](assets/main.png)
+
 -   ### `curl`
+
     Curl hyper links
+
     ![curl](assets/curl.png)
+
 -   ### `js` (_`javascript`, `eval`_)
+
     Evaluates a javascript code
+
     ![js](assets/js.png)
+
 -   ### `jsi` (_`type`_)
+
     Evaluates a javascript code and shows it's inspected type
+
     ![jsi](assets/jsi.png)
+
 -   ### `owners [add|remove] [id]`
+
     List/Add/Remove the owners of the bot
+
     ![owners](assets/owners.png)
+
 -   ### `shard`
     Evaluates a javascript code on all shards, and the current shard
 -   ### `shell` (_`exec`, `sh`, `bash`_)
+
     Executes a shell command
+
     ![shell](assets/shell.png)
+
 -   ### `source` (_`cat`, `file`_)
+
     Shows the source code of a file
+
     ![source](assets/source.png)
 
 ---
