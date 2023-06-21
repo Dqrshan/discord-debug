@@ -1,0 +1,39 @@
+{
+    "name": "discord-debug",
+    "version": "1.0.0",
+    "description": "A simple discord.js debugging tool",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "test": "npm run build && node tests/main.js",
+        "format": "npx prettier -w ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Dqrshan/discord-debug.git"
+    },
+    "keywords": [
+        "discord-debug",
+        "debugger",
+        "discord.js"
+    ],
+    "author": {
+        "name": "Darshan",
+        "email": "darshan@disroot.org",
+        "url": "https://darshan.studio/"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Dqrshan/discord-debug/issues"
+    },
+    "homepage": "https://github.com/Dqrshan/discord-debug#readme",
+    "devDependencies": {
+        "@types/node-fetch": "2.6",
+        "typescript": "^5.2.0-dev.20230621"
+    },
+    "dependencies": {
+        "colorette": "^2.0.20",
+        "discord.js": "^14.11.0",
+        "node-fetch": "2.6"
+    }
+}
