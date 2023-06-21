@@ -1,6 +1,6 @@
 {
     "name": "discord-debug",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "A simple discord.js debugging tool",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
@@ -8,6 +8,7 @@
     "files": [
         "dist/**/*",
         "dist/*",
+        "assets/",
         "package.json",
         "README.md",
         "LICENSE"
