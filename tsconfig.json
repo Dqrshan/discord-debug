@@ -9,10 +9,9 @@
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "importHelpers": true,
-        "verbatimModuleSyntax": true,
         "incremental": true,
         "lib": ["esnext"],
-        "module": "Node16",
+        "module": "ESNext",
         "moduleResolution": "Node",
         "newLine": "lf",
         "noEmitHelpers": true,
@@ -30,7 +29,6 @@
         "rootDir": ".",
         "outDir": "dist",
         "tsBuildInfoFile": "dist/.tsbuildinfo",
-        "ignoreDeprecations": "5.0",
         "noUnusedLocals": true
     }
 }
