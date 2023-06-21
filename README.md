@@ -59,7 +59,6 @@ client.login('token');
 ## 📜 Debug Commands Help
 
 -   Default:
-
 ![help](assets/help.png)
 
 -   Custom:
