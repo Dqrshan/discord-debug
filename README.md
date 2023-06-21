@@ -35,7 +35,7 @@ const client = new Client({
 });
 
 const debug = new Debugger(client, {
-    secrets: [] // not required, defaults to client's token
+    secrets: [], // not required, defaults to client's token
     owners: [] // not required, defaults to application owner(s)
 });
 
