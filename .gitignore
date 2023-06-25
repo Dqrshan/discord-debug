@@ -3,3 +3,4 @@ package-lock.json
 dist/
 .env
 tests/config.js
+debug.config
