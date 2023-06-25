@@ -5,7 +5,7 @@ import { EmbedBuilder } from '@discordjs/builders';
 const command: Command = {
     name: 'help',
     aliases: ['h'],
-    description: 'List all debug commands',
+    description: 'List of all debug commands',
     messageRun: async (message, _, __) => {
         await help(message);
     },
