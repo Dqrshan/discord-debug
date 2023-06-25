@@ -51,7 +51,7 @@ client.on('messageCreate', async (message) => {
     } else if (message.content.startsWith('!debug')) {
         // handle *in* prefix commands!
         const args = message.content.split(' ').slice(1);
-        await debug.run(message, args);
+        await debug.messageRun(message, args);
     }
 });
 
@@ -60,10 +60,50 @@ client.login('token');
 
 ---
 
+## 🧾 Docs
+
+### **constructor(`client`, `options`)**
+
+| Name      | Type                                                                    | Optional | Details                    |
+| --------- | ----------------------------------------------------------------------- | -------- | -------------------------- |
+| `client`  | [Client](https://old.discordjs.dev/#/docs/discord.js/main/class/Client) | ❌       | discord.js Client instance |
+| `options` | Options                                                                 | ✅       | Debugger Options           |
+
+### **`Options`**
+
+| Name                          | Type       | Optional | Details                        | Default              |
+| ----------------------------- | ---------- | -------- | ------------------------------ | -------------------- |
+| `owners`                      | `string[]` | ✅       | Array of owner Ids             | Application Owner(s) |
+| `secrets`                     | `any[]`    | ✅       | Array of secrets               | Client token         |
+| `registerApplicationCommands` | `boolean`  | ✅       | Integrate slash (`/`) commands | `false`              |
+
+### **Methods**
+
+-   `messageRun(message, args?): Promise<Message>`
+
+> | Name      | Type                                                                      | Optional | Details                                                                    |
+> | --------- | ------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+> | `message` | [Message](https://old.discordjs.dev/#/docs/discord.js/main/class/Message) | ❌       | discord.js Message instance                                                |
+> | `args`    | `string[]`                                                                | ✅       | Array of splitted message content, **including sub command** and arguments |
+
+-   `addOwner(id): string[]`
+
+> | Name | Type                                                                            | Optional | Details                           |
+> | ---- | ------------------------------------------------------------------------------- | -------- | --------------------------------- |
+> | `id` | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | ❌       | User ID to add to the owners list |
+
+-   `removeOwner(id): string[]`
+
+> | Name | Type                                                                            | Optional | Details                                |
+> | ---- | ------------------------------------------------------------------------------- | -------- | -------------------------------------- |
+> | `id` | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | ❌       | User ID to remove from the owners list |
+
+---
+
 ## 📜 Debug Commands Help
 
 -   Default:
-![help](assets/help.png)
+    ![help](assets/help.png)
 
 -   Custom:
     > `discord-debug` comes with an exported **`commands`** collection of all commands.
