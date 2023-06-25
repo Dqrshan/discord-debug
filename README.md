@@ -6,7 +6,7 @@
 
 ---
 
-## ✅ Installation
+## Installation
 
 ```bash
 npm i discord-debug@latest
@@ -14,12 +14,16 @@ npm i discord-debug@latest
 
 -   Core Dependencies
     > ```bash
-    > npm i discord.js@latest
+    > npm i discord.js colorette
     > ```
 
 ---
 
-## ⚙️ Basic Usage
+## Documentation
+
+-   https://lxrnz.gitbook.io/discord-debug/
+
+## Basic Usage
 
 ```js
 const { Client, GatewayIntentBits } = require('discord.js');
@@ -60,53 +64,11 @@ client.login('token');
 
 ---
 
-## 🧾 Docs
+## Debug Commands
 
-### **constructor(`client`, `options`)**
+![help](assets/help.png)
 
-| Name      | Type                                                                    | Optional | Details                    |
-| --------- | ----------------------------------------------------------------------- | -------- | -------------------------- |
-| `client`  | [Client](https://old.discordjs.dev/#/docs/discord.js/main/class/Client) | ❌       | discord.js Client instance |
-| `options` | Options                                                                 | ✅       | Debugger Options           |
-
-### **`Options`**
-
-| Name                          | Type       | Optional | Details                        | Default              |
-| ----------------------------- | ---------- | -------- | ------------------------------ | -------------------- |
-| `owners`                      | `string[]` | ✅       | Array of owner Ids             | Application Owner(s) |
-| `secrets`                     | `any[]`    | ✅       | Array of secrets               | Client token         |
-| `registerApplicationCommands` | `boolean`  | ✅       | Integrate slash (`/`) commands | `false`              |
-
-### **Methods**
-
--   `messageRun(message, args?): Promise<Message>`
-
-> | Name      | Type                                                                      | Optional | Details                                                                    |
-> | --------- | ------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
-> | `message` | [Message](https://old.discordjs.dev/#/docs/discord.js/main/class/Message) | ❌       | discord.js Message instance                                                |
-> | `args`    | `string[]`                                                                | ✅       | Array of splitted message content, **including sub command** and arguments |
-
--   `addOwner(id): string[]`
-
-> | Name | Type                                                                            | Optional | Details                           |
-> | ---- | ------------------------------------------------------------------------------- | -------- | --------------------------------- |
-> | `id` | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | ❌       | User ID to add to the owners list |
-
--   `removeOwner(id): string[]`
-
-> | Name | Type                                                                            | Optional | Details                                |
-> | ---- | ------------------------------------------------------------------------------- | -------- | -------------------------------------- |
-> | `id` | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | ❌       | User ID to remove from the owners list |
-
----
-
-## 📜 Debug Commands Help
-
--   Default:
-    ![help](assets/help.png)
-
--   Custom:
-    > `discord-debug` comes with an exported **`commands`** collection of all commands.
+> `discord-debug` comes with an exported **`commands`** collection of all commands.
 
 ```js
 const { EmbedBuilder } = require('discord.js');
@@ -116,7 +78,7 @@ const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
     commands.map((data, name) => {
         return {
             name,
-            value: `${data.description}\n${data.aliases.join('') ?? ''}`,
+            value: `${data.description}\n${data.aliases.join(', ') ?? ''}`,
             inline: true
         };
     })
@@ -125,55 +87,13 @@ const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
 
 ---
 
-## ⚡️ Features
+## Features
 
--   ### `main`
-
-    Shows the main debug information
-
-    ![main](assets/main.png)
-
--   ### `curl`
-
-    Curl hyper links
-
-    ![curl](assets/curl.png)
-
--   ### `js` (_`javascript`, `eval`_)
-
-    Evaluates a javascript code
-
-    ![js](assets/js.png)
-
--   ### `jsi` (_`type`_)
-
-    Evaluates a javascript code and shows it's inspected type
-
-    ![jsi](assets/jsi.png)
-
--   ### `owners [add|remove] [id]`
-
-    List/Add/Remove the owners of the bot
-
-    ![owners](assets/owners.png)
-
--   ### `shard`
-    Evaluates a javascript code on all shards, and the current shard
--   ### `shell` (_`exec`, `sh`, `bash`_)
-
-    Executes a shell command
-
-    ![shell](assets/shell.png)
-
--   ### `source` (_`cat`, `file`_)
-
-    Shows the source code of a file
-
-    ![source](assets/source.png)
+-   View features in the [documentation](https://lxrnz.gitbook.io/discord-debug/commands/default-info)
 
 ---
 
-## 📃 Notes
+## Notes
 
 -   This repository is inspired by [wonderlandpark/dokdo](https://github.com/wonderlandpark/dokdo). All credits goes to dokdo.
 -   Please make sure to star dokdo before you star this repository!
@@ -182,7 +102,7 @@ const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
 
 ---
 
-## 💫 Contributing
+## Contributing
 
 **NOTE**: Create an [issue](https://github.com/Dqrshan/discord-debug/issues) before creating a pull request!
 
@@ -191,9 +111,9 @@ const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
 
 ---
 
-## 🌐 Developer Contact
+## Developer Contact
 
-> https://darshan.studio/
+-   https://darshan.studio/
 
 ---
 
