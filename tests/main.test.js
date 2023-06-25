@@ -47,10 +47,7 @@ var client = new discord_js_1.Client({
         discord_js_1.GatewayIntentBits.MessageContent
     ]
 });
-var debug = new dist_1.Debugger(client, {
-    secrets: [process.env.TEST]
-    // owners: ['838285943365435453']
-});
+var debug = new dist_1.Debugger(client);
 client.on('ready', function () { return console.log("Logged in as ".concat(client.user.tag)); });
 client.on('messageCreate', function (message) { return __awaiter(void 0, void 0, void 0, function () {
     var args;
@@ -63,7 +60,7 @@ client.on('messageCreate', function (message) { return __awaiter(void 0, void 0,
             case 1:
                 if (!message.content.startsWith('!debug')) return [3 /*break*/, 3];
                 args = message.content.split(' ').slice(1);
-                return [4 /*yield*/, debug.run(message, args)];
+                return [4 /*yield*/, debug.messageRun(message, args)];
             case 2:
                 _a.sent();
                 _a.label = 3;

@@ -5,7 +5,8 @@ import Discord, {
     InteractionCollector,
     Message,
     type TextBasedChannel,
-    User
+    User,
+    ChatInputCommandInteraction
 } from 'discord.js';
 import { codeBlock, escapeRegex } from '.';
 import type { Debugger } from '../';
@@ -49,12 +50,12 @@ export class Paginator {
         | undefined;
 
     constructor(
-        message: Message,
+        public context: Message | ChatInputCommandInteraction,
         public content: string,
         public parent: Debugger,
         public options: ProcessOptions = {}
     ) {
-        this.target = message.channel!;
+        this.target = context.channel!;
         this.parent = parent;
         this.content = content || '​';
         this.messageContent = '';
@@ -62,8 +63,8 @@ export class Paginator {
         this.limit = options.limit || 1900;
         this.splitted = this.splitContent() || [' '];
         this.page = 1;
-        this.author = message.author;
-        // message instanceof Message ? message.author : message.user;
+        this.author =
+            context instanceof Message ? context.author : context.user;
         this.actions = [];
         this.wait = 1;
         this.message = undefined;
@@ -75,9 +76,14 @@ export class Paginator {
 
     async init() {
         this.messageContent = this.genText();
-        this.message = await this.target.send(
-            this.filterSecret(this.messageContent)
-        );
+        this.message =
+            this.context instanceof Message
+                ? await this.context.reply(
+                      this.filterSecret(this.messageContent)
+                  )
+                : await this.context.editReply({
+                      content: this.filterSecret(this.messageContent)
+                  });
     }
 
     async addAction(actions: Action[], args?: Record<string, any>) {
@@ -89,8 +95,9 @@ export class Paginator {
         this.args.manager = this;
 
         this.createMessageComponentMessage();
-        this.messageComponentCollector =
-            this.message.createMessageComponentCollector({
+        this.messageComponentCollector = new InteractionCollector(
+            this.parent.client,
+            {
                 componentType: ComponentType.Button,
                 filter: (interaction) =>
                     Boolean(
@@ -101,8 +108,10 @@ export class Paginator {
                         ) && interaction.user.id === this.author.id
                     ),
                 time: 300000,
-                dispose: true
-            });
+                dispose: true,
+                message: this.message
+            }
+        );
 
         this.messageComponentCollector.on('collect', (component) => {
             const event = this.actions.find(
@@ -115,7 +124,7 @@ export class Paginator {
         });
 
         this.messageComponentCollector.on('end', () => {
-            this.message?.edit({ components: [] });
+            this.message?.edit({ components: [] }).catch(() => {});
         });
     }
 
@@ -128,7 +137,7 @@ export class Paginator {
         const actionRow = new Discord.ActionRowBuilder<ButtonBuilder>({
             components: buttons
         });
-        this.message?.edit({ components: [actionRow] });
+        this.message?.edit({ components: [actionRow] }).catch(() => {});
     }
 
     filterSecret(string: string) {
@@ -191,7 +200,9 @@ export class Paginator {
 
     edit() {
         if (this.splitted.length > 1) this.createMessageComponentMessage();
-        this.message?.edit(this.filterSecret(this.messageContent));
+        this.message
+            ?.edit(this.filterSecret(this.messageContent))
+            .catch(() => {});
     }
 
     add(content: string) {
@@ -202,7 +213,7 @@ export class Paginator {
     }
 
     destroy() {
-        this.message?.edit({ components: [] });
+        this.message?.edit({ components: [] }).catch(() => {});
         this.messageComponentCollector?.stop();
     }
 

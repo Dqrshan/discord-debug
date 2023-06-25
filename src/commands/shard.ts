@@ -1,18 +1,53 @@
-import Discord, { Client as DiscordClient, Message } from 'discord.js';
+import {
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Client,
+    Message
+} from 'discord.js';
 import type { Debugger } from '../';
 import { Paginator, inspect } from '../lib';
+import { Command } from '../lib/Command';
 
-export async function shard(message: Message, parent: Debugger, args: string) {
+const command: Command = {
+    name: 'shard',
+    description: 'Evaluates a javascript code on all shards',
+    messageRun: async (message, parent, args) => {
+        await shard(message, parent, args);
+    },
+    interactionRun: async (interaction, parent) => {
+        if (!interaction.deferred) await interaction.deferReply();
+        await shard(
+            interaction,
+            parent,
+            interaction.options.getString('code')!
+        );
+    }
+};
+
+export default command;
+
+const shard = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger,
+    args: string
+) => {
+    const isMsg = message instanceof Message;
     if (!args) return message.reply('Missing Arguments.');
-    if (!parent.client.shard) return message.reply('Shard Manager not found.');
-    let evalFunction: (client: DiscordClient) => any;
+    if (!parent.client.shard)
+        return isMsg
+            ? message.reply('Shard Manager not found.')
+            : await message.editReply('Shard Manage not found.');
+    let evalFunction: (client: Client) => any;
     try {
         // eslint-disable-next-line no-new-func
         evalFunction = Function('client', `return ${args}`) as (
-            client: DiscordClient
+            client: Client
         ) => any; // catch syntax error
     } catch (err: any) {
-        return message.reply(err.toString());
+        return isMsg
+            ? message.reply(err.toString())
+            : await message.editReply(err.toString());
     }
     const result = await parent.client.shard
         .broadcastEval(evalFunction)
@@ -50,28 +85,28 @@ export async function shard(message: Message, parent: Debugger, args: string) {
     await msg.init();
     await msg.addAction([
         {
-            button: new Discord.ButtonBuilder()
-                .setStyle(Discord.ButtonStyle.Primary)
+            button: new ButtonBuilder()
+                .setStyle(ButtonStyle.Primary)
                 .setCustomId('dokdo$prev')
                 .setLabel('Prev'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true
         },
         {
-            button: new Discord.ButtonBuilder()
-                .setStyle(Discord.ButtonStyle.Secondary)
+            button: new ButtonBuilder()
+                .setStyle(ButtonStyle.Secondary)
                 .setCustomId('dokdo$stop')
                 .setLabel('Stop'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true
         },
         {
-            button: new Discord.ButtonBuilder()
-                .setStyle(Discord.ButtonStyle.Success)
+            button: new ButtonBuilder()
+                .setStyle(ButtonStyle.Success)
                 .setCustomId('dokdo$next')
                 .setLabel('Next'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true
         }
     ]);
-}
+};

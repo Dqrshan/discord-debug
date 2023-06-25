@@ -1,9 +1,38 @@
 import fs from 'fs';
-import { ButtonBuilder, ButtonStyle, Message } from 'discord.js';
+import {
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Message
+} from 'discord.js';
 import { Paginator, HLJS } from '../lib';
 import type { Debugger } from '../';
+import { Command } from '../lib/Command';
 
-export async function source(message: Message, parent: Debugger, args: string) {
+const command: Command = {
+    name: 'source',
+    aliases: ['src', 'file', 'cat'],
+    description: 'Shows the source code of a file',
+    messageRun: async (message, parent, args) => {
+        await source(message, parent, args);
+    },
+    interactionRun: async (interaction, parent) => {
+        if (!interaction.deferred) await interaction.deferReply();
+        await source(
+            interaction,
+            parent,
+            interaction.options.getString('path', true)
+        );
+    }
+};
+
+export default command;
+
+const source = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger,
+    args: string
+) => {
     if (!args) return message.reply('Missing Arguments.');
     const filename = args;
     let msg;
@@ -45,4 +74,4 @@ export async function source(message: Message, parent: Debugger, args: string) {
             }
         ]);
     });
-}
+};

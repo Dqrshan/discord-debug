@@ -1,8 +1,30 @@
-import { EmbedBuilder, Message } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, Message } from 'discord.js';
 import type { Debugger } from '..';
+import { Command } from '../lib/Command';
 
-export async function owners(message: Message, parent: Debugger, args: string) {
-    if (!args) {
+const command: Command = {
+    name: 'owners',
+    description: 'Manage owners of the bot',
+    messageRun: async (message, parent, args) => {
+        await owners(message, parent, args);
+    },
+    interactionRun: async (interaction, parent) => {
+        await owners(
+            interaction,
+            parent,
+            interaction.options.getSubcommand(true)
+        );
+    }
+};
+
+export default command;
+
+const owners = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger,
+    args: string
+) => {
+    if (!args || args.split(' ')[0] === 'list') {
         return message.reply({
             embeds: [
                 new EmbedBuilder()
@@ -19,13 +41,13 @@ export async function owners(message: Message, parent: Debugger, args: string) {
             ]
         });
     }
+    const id =
+        message instanceof Message
+            ? args.split(' ')[1]
+            : message.options.getString('user_id', true);
+    if (!id) return message.reply(`Missing Arguments.`);
 
-    const sub = args.split(' ')[0];
-    const id = args.split(' ')[1];
-
-    if (!sub || !id) return message.reply(`Missing Arguments.`);
-
-    switch (sub) {
+    switch (args.split(' ')[0]) {
         case 'add':
             if (parent.owners.includes(id))
                 return message.reply(`Already added.`);
@@ -38,4 +60,4 @@ export async function owners(message: Message, parent: Debugger, args: string) {
             message.reply(`Removed \`${id}\`.`);
             break;
     }
-}
+};

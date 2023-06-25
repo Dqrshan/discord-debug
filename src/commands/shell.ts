@@ -1,9 +1,34 @@
 import child from 'child_process';
-import Discord, { Message } from 'discord.js';
+import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import type { Debugger } from '../';
 import { Paginator, codeBlock } from '../lib';
+import { Command } from '../lib/Command';
 
-export async function shell(message: Message, parent: Debugger, args: string) {
+const command: Command = {
+    name: 'shell',
+    aliases: ['sh', 'exec', 'bash'],
+    description: 'Executes a shell command',
+    messageRun: async (message, parent, args) => {
+        await shell(message, parent, args);
+    },
+    interactionRun: async (interaction, parent) => {
+        if (!interaction.deferred) await interaction.deferReply();
+        await shell(
+            interaction,
+            parent,
+            interaction.options.getString('command')!
+        );
+    }
+};
+
+export default command;
+
+const shell = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger,
+    args: string
+) => {
+    const isMsg = message instanceof Message;
     if (!args) return message.reply('Missing Arguments.');
 
     const shell =
@@ -14,9 +39,13 @@ export async function shell(message: Message, parent: Debugger, args: string) {
             ? '/bin/bash'
             : null);
     if (!shell) {
-        return message.reply(
-            'Unable to find your default shell.\nPlease set `process.env.SHELL`.'
-        );
+        return isMsg
+            ? message.reply(
+                  'Unable to find your default shell.\nPlease set `process.env.SHELL`.'
+              )
+            : await message.editReply(
+                  'Unable to find your default shell.\nPlease set `process.env.SHELL`.'
+              );
     }
     const msg = new Paginator(message, `$ ${args}\n`, parent, {
         lang: 'bash'
@@ -27,9 +56,11 @@ export async function shell(message: Message, parent: Debugger, args: string) {
         '-c',
         (shell === 'win32' ? 'chcp 65001\n' : '') + args
     ]);
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(async () => {
         kill(res, 'SIGTERM');
-        message.reply('Shell timeout.');
+        isMsg
+            ? message.reply('Shell timeout.')
+            : await message.editReply('Shell timeout.');
     }, 180000);
 
     await msg.addAction(
@@ -75,19 +106,26 @@ export async function shell(message: Message, parent: Debugger, args: string) {
         msg.add(`\n[stderr] ${data.toString()}`);
     });
 
-    res.on('error', (err) => {
-        return message.reply(
-            `Error occurred while spawning process\n${codeBlock.construct(
-                err.toString(),
-                'sh'
-            )}`
-        );
+    res.on('error', async (err) => {
+        return isMsg
+            ? message.reply(
+                  `Error occurred while spawning process\n${codeBlock.construct(
+                      err.toString(),
+                      'sh'
+                  )}`
+              )
+            : await message.editReply(
+                  `Error occurred while spawning process\n${codeBlock.construct(
+                      err.toString(),
+                      'sh'
+                  )}`
+              );
     });
     res.on('close', (code) => {
         clearTimeout(timeout);
         msg.add(`\n[status] process exited with code ${code}`);
     });
-}
+};
 
 function kill(res: any, signal?: NodeJS.Signals) {
     if (process.platform === 'win32') {

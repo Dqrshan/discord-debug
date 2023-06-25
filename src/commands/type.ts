@@ -1,11 +1,38 @@
-import Discord, { Message } from 'discord.js';
-import type { Debugger } from '../';
+import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
+import type { Debugger } from '..';
 import { Paginator, count, inspect, table, typeFind } from '../lib';
+import { Command } from '../lib/Command';
 
-export async function jsi(message: Message, parent: Debugger, args: string) {
+const command: Command = {
+    name: 'type',
+    aliases: ['jsi', 'jsinfo'],
+    description: 'Returns the type of evaluated code',
+    messageRun: async (message: Message, parent: Debugger, args: string) => {
+        await jsi(message, parent, args);
+    },
+    interactionRun: async (interaction, parent) => {
+        if (!interaction.deferred)
+            await interaction.deferReply({
+                fetchReply: true
+            });
+        const args = interaction.options.getString('code', true);
+        await jsi(interaction, parent, args);
+    }
+};
+
+export default command;
+
+const jsi = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger,
+    args: string
+) => {
     // @ts-ignore
-    const { client } = parent;
-    if (!args) return message.reply('Missing Arguments.');
+    const { client } = parent; // for eval
+    const isMessage = message instanceof Message;
+    if (isMessage && !args) {
+        return message.reply('Missing Arguments.');
+    }
 
     const res = new Promise((resolve) => resolve(eval(args ?? '')));
     let msg!: Paginator;
@@ -71,4 +98,4 @@ export async function jsi(message: Message, parent: Debugger, args: string) {
             requirePage: true
         }
     ]);
-}
+};

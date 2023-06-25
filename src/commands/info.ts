@@ -1,14 +1,33 @@
 import {
+    ChatInputCommandInteraction,
     EmbedBuilder,
     GatewayIntentBits,
     IntentsBitField,
     Message,
     version as djsVersion
 } from 'discord.js';
-import type { Debugger } from '../';
+import type { Debugger } from '..';
 import { System, DateFormat } from '../lib';
+import { Command } from '../lib/Command';
 
-export async function main(message: Message, parent: Debugger) {
+const command: Command = {
+    name: 'info',
+    description: '[Default] Main debug information',
+    messageRun: async (message, parent, _args) => {
+        await info(message, parent);
+    },
+    interactionRun: async (interaction, parent) => {
+        if (!interaction.deferred) await interaction.deferReply();
+        await info(interaction, parent);
+    }
+};
+
+export default command;
+
+const info = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger
+) => {
     const intents = new IntentsBitField(parent.client.options.intents);
     const embed = new EmbedBuilder()
         .setTitle(
@@ -69,5 +88,9 @@ export async function main(message: Message, parent: Debugger) {
             text: `Average websocket latency: ${parent.client.ws.ping}ms`
         });
 
-    return message.reply({ embeds: [embed] });
-}
+    return message instanceof Message
+        ? message.reply({ embeds: [embed] })
+        : await message.editReply({
+              embeds: [embed]
+          });
+};

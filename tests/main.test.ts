@@ -1,4 +1,8 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    Client,
+    GatewayIntentBits
+} from 'discord.js';
 import { Debugger } from '../dist';
 
 const { token } = require('./config');
@@ -12,10 +16,7 @@ const client = new Client({
     ]
 });
 
-const debug = new Debugger(client, {
-    secrets: [process.env.TEST]
-    // owners: ['838285943365435453']
-});
+const debug = new Debugger(client);
 
 client.on('ready', () => console.log(`Logged in as ${client.user!.tag}`));
 
@@ -24,7 +25,7 @@ client.on('messageCreate', async (message) => {
         message.reply('pong!');
     } else if (message.content.startsWith('!debug')) {
         const args = message.content.split(' ').slice(1);
-        await debug.run(message, args);
+        await debug.messageRun(message, args);
     }
 });
 

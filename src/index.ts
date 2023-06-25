@@ -3,20 +3,14 @@ import {
     Message,
     type Snowflake,
     Team,
-    EmbedBuilder
+    ChatInputCommandInteraction,
+    REST,
+    Routes
 } from 'discord.js';
 import { yellowBright, redBright, greenBright, blueBright } from 'colorette';
-import commands, {
-    curl,
-    js,
-    jsi,
-    main,
-    owners,
-    shard,
-    shell,
-    source
-} from './commands';
 import fs from 'fs';
+import { commands, loadCommands } from './lib/Command';
+import { debugCommand } from './lib/constants';
 
 class Debugger {
     public owners: Snowflake[];
@@ -36,7 +30,31 @@ class Debugger {
         if (options?.secrets && !Array.isArray(options.secrets))
             throw new TypeError('`secrets` must be an array.');
 
-        client.once('ready', (core) => {
+        client.once('ready', async (core) => {
+            await loadCommands(this);
+            if (options?.registerApplicationCommands) {
+                const rest = new REST().setToken(core.token);
+                (async () => {
+                    try {
+                        this.log(
+                            `Started refreshing application (/) commands.`,
+                            'info'
+                        );
+
+                        const data = (await rest.put(
+                            Routes.applicationCommands(core.user.id),
+                            { body: [debugCommand.toJSON()] }
+                        )) as any;
+
+                        this.log(
+                            `Successfully reloaded ${data.length} application (/) commands.`,
+                            'info'
+                        );
+                    } catch (error) {
+                        this.log(error as string, 'error');
+                    }
+                })();
+            }
             if (!this.owners.length) {
                 this.log(
                     'No owners were provided, fetching from application...',
@@ -70,77 +88,60 @@ class Debugger {
             } else {
                 this.owners.forEach((id) => this.addOwner(id));
             }
+            this.log(`Debug owners: ${this.owners.join(', ')}`, 'debug');
+        });
+
+        client.on('interactionCreate', async (interaction) => {
+            if (!options?.registerApplicationCommands) return;
+            if (!(interaction instanceof ChatInputCommandInteraction)) return;
+            if (!this.owners.includes(interaction.user.id)) {
+                const content =
+                    'This command can only be used by the owners of the bot.';
+                interaction.deferred
+                    ? await interaction.editReply({
+                          content
+                      })
+                    : interaction.reply({
+                          content,
+                          ephemeral: true
+                      });
+                return;
+            }
+            if (!interaction.isCommand()) return;
+            if (!this.options?.registerApplicationCommands) return;
+            const command = interaction.options.getSubcommandGroup()
+                ? commands.get(interaction.options.getSubcommandGroup()!)
+                : commands.get(interaction.options.getSubcommand()!);
+            if (!command) return;
+            if (command.interactionRun) {
+                await command
+                    .interactionRun(
+                        interaction as ChatInputCommandInteraction,
+                        this
+                    )
+                    .catch((err) => this.log(err, 'error'));
+            }
         });
     }
-
-    public async run(message: Message, args: string[]) {
+    public async messageRun(message: Message, args: string[]) {
         if (!(message instanceof Message))
             throw new TypeError(
                 '`message` must be a Discord.js Message instance.'
             );
 
         if (!this.owners.includes(message.author.id)) return;
-        const subCommand = args.shift();
-
-        if (!args.length && !subCommand) {
-            return main(message, this);
-        } else {
-            switch (subCommand) {
-                case 'curl':
-                    curl(message, this, args.join(' '));
-                    break;
-                case 'js':
-                case 'javascript':
-                case 'eval':
-                    js(message, this, args.join(' '));
-                    break;
-                case 'jsi':
-                case 'type':
-                    jsi(message, this, args.join(' '));
-                    break;
-                case 'owners':
-                    owners(message, this, args.join(' '));
-                    break;
-                case 'shard':
-                    shard(message, this, args.join(' '));
-                    break;
-                case 'shell':
-                case 'exec':
-                case 'sh':
-                case 'bash':
-                    shell(message, this, args.join(' '));
-                    break;
-                case 'source':
-                case 'cat':
-                case 'file':
-                    source(message, this, args.join(' '));
-                    break;
-                case 'help':
-                default:
-                    message.reply({
-                        embeds: [
-                            new EmbedBuilder()
-                                .setTitle(
-                                    `${this.client.user?.username}'s Debug Commands`
-                                )
-                                .setFields(
-                                    commands.map((data, name) => ({
-                                        name,
-                                        value: `${data.description}${
-                                            data.aliases.length
-                                                ? `\n> *Aliases: ${data.aliases
-                                                      .map((a) => `\`${a}\``)
-                                                      .join(', ')}*`
-                                                : ''
-                                        }`,
-                                        inline: true
-                                    }))
-                                )
-                        ]
-                    });
-                    break;
-            }
+        const cx = args.shift()!;
+        if (!cx) return commands.get('info')?.messageRun!(message, this, '');
+        const command =
+            commands.get(cx) ||
+            commands.find((c) => c.aliases && c.aliases.includes(cx));
+        if (!command) return;
+        if (command.messageRun) {
+            await command
+                .messageRun(message, this, args.join(' '))
+                .catch((err) => this.log(err, 'error'));
         }
+
         return message;
     }
 
@@ -214,15 +215,22 @@ class Debugger {
         return owners;
     }
 
-    private log(message: string, type: 'error' | 'warn' | 'info' | 'debug') {
+    public log(message: string, type: 'error' | 'warn' | 'info' | 'debug') {
+        const pad = ' '.repeat(2);
         if (type === 'error')
-            console.error(`${redBright('[Debugger: ERROR]')} ${message}`);
+            console.error(`${redBright('[Debugger: ERROR]')}${pad} ${message}`);
         else if (type === 'warn')
-            console.warn(`${yellowBright('[Debugger: WARN]')} ${message}`);
+            console.warn(
+                `${yellowBright('[Debugger:  WARN]')}${pad} ${message}`
+            );
         else if (type === 'info')
-            console.info(`${greenBright('[Debugger: INFO]')} ${message}`);
+            console.info(
+                `${greenBright('[Debugger:  INFO]')}${pad} ${message}`
+            );
         else if (type === 'debug')
-            console.debug(`${blueBright('[Debugger: DEBUG]')} ${message}`);
+            console.debug(
+                `${blueBright('[Debugger: DEBUG]')}${pad} ${message}`
+            );
     }
 }
 
@@ -230,4 +238,5 @@ export { Debugger, commands };
 export interface Options {
     owners?: Snowflake[];
     secrets?: any[];
+    registerApplicationCommands?: boolean | false;
 }

@@ -1,11 +1,38 @@
 import fetch from 'node-fetch';
-import Discord, { Message } from 'discord.js';
+import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import { Paginator, HLJS } from '../lib';
 import type { Debugger } from '../';
+import { Command } from '../lib/Command';
 
-export async function curl(message: Message, parent: Debugger, args: string) {
-    if (!args) return message.reply('Missing Arguments.');
+const command: Command = {
+    name: 'curl',
+    description: 'Curl hyper links',
+    messageRun: async (message: Message, parent: Debugger, args: string) => {
+        if (!args) return message.reply('Missing Arguments.');
 
+        await curl(message, parent, args);
+    },
+    interactionRun: async (
+        interaction: ChatInputCommandInteraction,
+        parent: Debugger
+    ) => {
+        if (!interaction.deferred)
+            await interaction.deferReply({
+                ephemeral: false,
+                fetchReply: true
+            });
+        const args = interaction.options.getString('url', true);
+        await curl(interaction, parent, args!);
+    }
+};
+
+export default command;
+
+const curl = async (
+    message: Message | ChatInputCommandInteraction,
+    parent: Debugger,
+    args: string
+) => {
     let type;
     const res = await fetch(args.split(' ')[0]!)
         .then(async (r) => {
@@ -20,7 +47,7 @@ export async function curl(message: Message, parent: Debugger, args: string) {
         })
         .catch((e) => {
             type = 'js';
-            message.react('❗');
+            if (message instanceof Message) message.react('❗');
             return e.toString();
         });
 
@@ -52,4 +79,4 @@ export async function curl(message: Message, parent: Debugger, args: string) {
             requirePage: true
         }
     ]);
-}
+};

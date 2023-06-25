@@ -35,8 +35,12 @@ const client = new Client({
 });
 
 const debug = new Debugger(client, {
-    secrets: [], // not required, defaults to client's token
-    owners: [] // not required, defaults to application owner(s)
+    /* secrets to hide during eval (default: client token) */
+    secrets: [],
+    /* owners that can use this tool (default: client application owner(s)) */
+    owners: [],
+    /* integrate slash commands [/debug] (default: false) */
+    registerApplicationCommands: true
 });
 
 client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
