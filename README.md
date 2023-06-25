@@ -2,8 +2,6 @@
 
 > Inspired by [wonderlandpark/dokdo](https://github.com/wonderlandpark/dokdo), `discord-debug` is efficient, customizable, simple and consistent!
 
-> All credits go to [wonderlandpark/dokdo](https://github.com/wonderlandpark/dokdo)
-
 ---
 
 ## Installation
@@ -95,9 +93,7 @@ const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
 
 ## Notes
 
--   This repository is inspired by [wonderlandpark/dokdo](https://github.com/wonderlandpark/dokdo). All credits goes to dokdo.
--   Please make sure to star dokdo before you star this repository!
-
+-   This repository is inspired by [wonderlandpark/dokdo](https://github.com/wonderlandpark/dokdo).
 -   This repository will receive its own features, may it be in dokdo or not.
 
 ---
