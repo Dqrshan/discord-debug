@@ -63,8 +63,7 @@ client.login('token');
 ## 📜 Debug Commands Help
 
 -   Default:
-
-    ![help](assets/help.png)
+![help](assets/help.png)
 
 -   Custom:
     > `discord-debug` comes with an exported **`commands`** collection of all commands.
