@@ -7,10 +7,38 @@ import {
     REST,
     Routes
 } from 'discord.js';
-import { yellowBright, redBright, greenBright, blueBright } from 'colorette';
+import {
+    yellowBright,
+    redBright,
+    greenBright,
+    blueBright,
+    bold,
+    italic,
+    whiteBright
+} from 'colorette';
 import fs from 'fs';
 import { commands, loadCommands } from './lib/Command';
 import { debugCommand } from './lib/constants';
+import fetch from 'node-fetch';
+
+const { version, name } = require('../package.json');
+
+fetch(`https://registry.npmjs.org/${name}/`).then((res) => {
+    res.json().then((json) => {
+        if (json['dist-tags'].latest !== version) {
+            console.log(
+                `┌────────────────────────────┐
+│         ${bold(yellowBright('NEW UPDATE'))}         │
+├────────────────────────────┤
+│      v${redBright(version)} -> v${greenBright(
+                    json['dist-tags'].latest
+                )}      │
+│ ${italic(whiteBright(`npm i ${name}@latest`))} │
+└────────────────────────────┘`
+            );
+        }
+    });
+});
 
 class Debugger {
     public owners: Snowflake[];
