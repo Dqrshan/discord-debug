@@ -8,7 +8,7 @@ coverY: 0
 # discord-debug
 
 {% hint style="info" %}
-Latest: `v2.0.2`
+Latest: `v2.0.3`
 {% endhint %}
 
 ## Installation
