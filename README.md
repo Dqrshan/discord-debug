@@ -6,7 +6,12 @@
 
 # ❗️IMPORTANT❗️
 
-`discord-debug` `v1.0.8` is the latest **stable** version of the package. The latest package (`v2.0.4`) has an unexpected dependency error. This issue has no errors thrown and doesn't respond to commands at all. This is also an active issue opened [here](https://github.com/Dqrshan/discord-debug/issues/1). Please bare with me till this issue is fixed, I recommend using v1.0.8 [npm i discord-debug@1.0.8].
+`discord-debug` `v1.0.8` is the latest **stable** version of the package. The latest package (`v2.0.4`) has an unexpected dependency error. This issue has no errors thrown and doesn't respond to commands at all. This is also an active issue opened [here](https://github.com/Dqrshan/discord-debug/issues/1). 
+
+Please bare with me till this issue is fixed, I recommend using v1.0.8:
+```bash
+npm i discord-debug@1.0.8
+```
 
 Contributions, fixes and any sort of help is always appreciated. Contact me via my [socials](https://darshan.studio/), or mail me: darshan@disroot.org.
 
