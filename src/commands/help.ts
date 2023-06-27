@@ -1,6 +1,5 @@
-import { ChatInputCommandInteraction, Message } from 'discord.js';
+import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
 import { Command, commands } from '../lib/Command';
-import { EmbedBuilder } from '@discordjs/builders';
 
 const command: Command = {
     name: 'help',
