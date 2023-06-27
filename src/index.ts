@@ -49,15 +49,14 @@ class Debugger {
      */
     public constructor(public client: Client, public options?: Options) {
         fs.readFileSync('debug.config', { flag: 'a+' });
-        this.owners = options?.owners ?? this._syncOwners();
         if (!(client instanceof Client))
             throw new TypeError(
                 '`client` must be a Discord.js Client instance.'
             );
 
         if (options?.secrets && !Array.isArray(options.secrets))
-            throw new TypeError('`secrets` must be an array.');
-
+            options.secrets = [];
+        this.owners = options?.owners ?? this._syncOwners();
         client.once('ready', async (core) => {
             await loadCommands(this);
             if (options?.registerApplicationCommands) {
