@@ -28,7 +28,7 @@ export interface Command {
 const commands = new Collection<string, Command>();
 
 export const loadCommands = async (parent: Debugger) => {
-    const files = readdirSync('dist/commands').filter(
+    const files = readdirSync(__dirname.replace('lib', 'commands')).filter(
         (f) => f.endsWith('.js') && f.split('.')[0] !== 'index'
     );
     for (const file of files) {
