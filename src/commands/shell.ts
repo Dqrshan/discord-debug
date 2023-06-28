@@ -48,7 +48,7 @@ const shell = async (
               );
     }
     const msg = new Paginator(message, `$ ${args}\n`, parent, {
-        lang: 'bash'
+        lang: 'shell'
     });
     await msg.init();
 
