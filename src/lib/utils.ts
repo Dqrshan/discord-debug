@@ -13,6 +13,9 @@ export const join = (arr: any[], sep: string, last: string) => {
     );
 };
 
+export const capitalize = (str: string) =>
+    str[0].toUpperCase() + str.slice(1).toLowerCase();
+
 export class codeBlock {
     static construct(content: string, lang?: string) {
         return `\`\`\`${content ? lang || '' : ''}\n${escapeCodeBlock(
