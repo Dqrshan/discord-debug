@@ -11,12 +11,11 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMembers,
         GatewayIntentBits.MessageContent
     ]
 });
 
-const debug = new Debugger(client);
+const debug = new Debugger(client, { registerApplicationCommands: true });
 
 client.on('ready', () => console.log(`Logged in as ${client.user!.tag}`));
 
