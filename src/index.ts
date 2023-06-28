@@ -20,6 +20,7 @@ import fs from 'fs';
 import { commands, loadCommands } from './lib/Command';
 import { debugCommand } from './lib/constants';
 import fetch from 'node-fetch';
+import { capitalize } from './lib';
 
 const { version, name } = require('../package.json');
 
@@ -120,6 +121,22 @@ class Debugger {
 
         client.on('interactionCreate', async (interaction) => {
             if (!options?.registerApplicationCommands) return;
+            if (interaction.isAutocomplete()) {
+                const cmds = commands.map((c) => c.name);
+                const focused = interaction.options.getFocused();
+                const filtered = cmds.filter((c) =>
+                    c.includes(focused.toLowerCase())
+                );
+                await interaction
+                    .respond(
+                        filtered.map((c) => ({
+                            name: capitalize(c),
+                            value: c
+                        }))
+                    )
+                    .catch(() => {});
+                return;
+            }
             if (!(interaction instanceof ChatInputCommandInteraction)) return;
             if (!this.owners.includes(interaction.user.id)) {
                 const content =
