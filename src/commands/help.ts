@@ -1,44 +1,73 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
 import { Command, commands } from '../lib/Command';
+import { capitalize } from '../lib';
 
 const command: Command = {
     name: 'help',
     aliases: ['h'],
     description: 'List of all debug commands',
-    messageRun: async (message, _, __) => {
-        await help(message);
+    messageRun: async (message, _, args) => {
+        await help(message, args);
     },
     interactionRun: async (interaction, _) => {
-        await help(interaction);
+        const cmd = interaction.options.getString('command', false);
+        await help(interaction, cmd);
     }
 };
 
 export default command;
 
-const help = async (ctx: Message | ChatInputCommandInteraction) => {
+const help = async (
+    ctx: Message | ChatInputCommandInteraction,
+    cmd: string | null
+) => {
+    if (
+        cmd &&
+        (commands.some((c) => c.name === cmd.toLowerCase()) ||
+            commands.some((c) => c.aliases?.includes(cmd.toLowerCase())))
+    ) {
+        const command =
+            commands.get(cmd.toLowerCase()) ||
+            commands.find(
+                (c) => c.aliases && c.aliases.includes(cmd.toLowerCase())
+            );
+        const embed = new EmbedBuilder()
+            .setTitle(`${capitalize(command?.name!)}`)
+            .setURL(
+                `https://lxrnz.gitbook.io/discord-debug/commands/${command?.name}`
+            )
+            .setFields(
+                {
+                    name: 'Details',
+                    value: command?.description ?? 'None',
+                    inline: true
+                },
+                {
+                    name: 'Aliases',
+                    value:
+                        command?.aliases?.map((a) => `\`${a}\``).join(', ') ??
+                        'None',
+                    inline: true
+                }
+            )
+            .setFooter({
+                text: `discord-debug v${
+                    require('../../package.json').version
+                } | Use 'help' for a list of commands`
+            });
+
+        return ctx.reply({ embeds: [embed] });
+    }
     const embed = new EmbedBuilder()
-        .setTitle('Debugger Help')
-        .setFields(
-            commands
-                .sort((a, b) => a.description.length - b.description.length)
-                // .filter((c) => c.name !== 'info')
-                .map((c) => {
-                    return {
-                        name: `${c.name}${
-                            c.aliases
-                                ? ` (${c.aliases
-                                      .map((a) => `\`${a}\``)
-                                      .join(', ')})`
-                                : ''
-                        }`,
-                        value: `${c.description}`,
-                        inline: true
-                    };
-                })
+        .setTitle('Available Commands')
+        .setDescription(
+            commands.map((c) => `\`${capitalize(c.name)}\``).join(', ')
         )
         .setThumbnail(ctx.client.user.displayAvatarURL())
         .setFooter({
-            text: `Usage: 'debug <command> [arguments]'`
+            text: `discord-debug v${
+                require('../../package.json').version
+            } | Use 'help [command]' for detailed information`
         });
 
     return ctx.reply({ embeds: [embed] });
