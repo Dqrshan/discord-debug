@@ -7,7 +7,16 @@ export const debugCommand = new SlashCommandBuilder()
         sub.setName('info').setDescription('[Default] Main debug information')
     )
     .addSubcommand((sub) =>
-        sub.setName('help').setDescription('List of all debug commands')
+        sub
+            .setName('help')
+            .setDescription('List of all debug commands')
+            .addStringOption((op) =>
+                op
+                    .setName('command')
+                    .setDescription('Command to get help for')
+                    .setRequired(false)
+                    .setAutocomplete(true)
+            )
     )
     .addSubcommand((sub) =>
         sub
