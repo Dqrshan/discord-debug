@@ -7,5 +7,6 @@ export * from './owners';
 export * from './shard';
 export * from './shell';
 export * from './source';
+export * from './stats';
 export * from './sql';
 export * from './type';
