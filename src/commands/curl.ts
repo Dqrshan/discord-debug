@@ -57,7 +57,7 @@ const curl = async (
         {
             button: new Discord.ButtonBuilder()
                 .setStyle(Discord.ButtonStyle.Danger)
-                .setCustomId('dokdo$prev')
+                .setCustomId('debug$prev')
                 .setLabel('Prev'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true
@@ -65,7 +65,7 @@ const curl = async (
         {
             button: new Discord.ButtonBuilder()
                 .setStyle(Discord.ButtonStyle.Secondary)
-                .setCustomId('dokdo$stop')
+                .setCustomId('debug$stop')
                 .setLabel('Stop'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true
@@ -73,7 +73,7 @@ const curl = async (
         {
             button: new Discord.ButtonBuilder()
                 .setStyle(Discord.ButtonStyle.Success)
-                .setCustomId('dokdo$next')
+                .setCustomId('debug$next')
                 .setLabel('Next'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true

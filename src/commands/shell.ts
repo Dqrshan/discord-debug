@@ -68,7 +68,7 @@ const shell = async (
             {
                 button: new Discord.ButtonBuilder()
                     .setStyle(Discord.ButtonStyle.Danger)
-                    .setCustomId('dokdo$prev')
+                    .setCustomId('debug$prev')
                     .setLabel('Prev'),
                 action: ({ manager }) => manager.previousPage(),
                 requirePage: true
@@ -76,7 +76,7 @@ const shell = async (
             {
                 button: new Discord.ButtonBuilder()
                     .setStyle(Discord.ButtonStyle.Secondary)
-                    .setCustomId('dokdo$stop')
+                    .setCustomId('debug$stop')
                     .setLabel('Stop'),
                 action: async ({ res, manager }) => {
                     res.stdin.pause();
@@ -89,7 +89,7 @@ const shell = async (
             {
                 button: new Discord.ButtonBuilder()
                     .setStyle(Discord.ButtonStyle.Success)
-                    .setCustomId('dokdo$next')
+                    .setCustomId('debug$next')
                     .setLabel('Next'),
                 action: ({ manager }) => manager.nextPage(),
                 requirePage: true

@@ -15,7 +15,10 @@ const client = new Client({
     ]
 });
 
-const debug = new Debugger(client, { registerApplicationCommands: true });
+const debug = new Debugger(client, {
+    registerApplicationCommands: true,
+    themeColor: '#ff6666'
+});
 
 client.on('ready', () => console.log(`Logged in as ${client.user!.tag}`));
 

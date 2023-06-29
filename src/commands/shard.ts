@@ -87,7 +87,7 @@ const shard = async (
         {
             button: new ButtonBuilder()
                 .setStyle(ButtonStyle.Primary)
-                .setCustomId('dokdo$prev')
+                .setCustomId('debug$prev')
                 .setLabel('Prev'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true
@@ -95,7 +95,7 @@ const shard = async (
         {
             button: new ButtonBuilder()
                 .setStyle(ButtonStyle.Secondary)
-                .setCustomId('dokdo$stop')
+                .setCustomId('debug$stop')
                 .setLabel('Stop'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true
@@ -103,7 +103,7 @@ const shard = async (
         {
             button: new ButtonBuilder()
                 .setStyle(ButtonStyle.Success)
-                .setCustomId('dokdo$next')
+                .setCustomId('debug$next')
                 .setLabel('Next'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true
