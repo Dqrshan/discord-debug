@@ -11,6 +11,17 @@ export const debugCommand = new SlashCommandBuilder()
     )
     .addSubcommand((sub) =>
         sub
+            .setName('git')
+            .setDescription('Executes a git command')
+            .addStringOption((op) =>
+                op
+                    .setName('args')
+                    .setDescription('git args to execute')
+                    .setRequired(true)
+            )
+    )
+    .addSubcommand((sub) =>
+        sub
             .setName('help')
             .setDescription('List of all debug commands')
             .addStringOption((op) =>
@@ -41,6 +52,18 @@ export const debugCommand = new SlashCommandBuilder()
                     .setName('code')
                     .setDescription('Code to evaluate')
                     .setRequired(true)
+            )
+    )
+    .addSubcommand((sub) =>
+        sub
+            .setName('docs')
+            .setDescription('Searches the discord.js documentation')
+            .addStringOption((op) =>
+                op
+                    .setName('query')
+                    .setDescription('Query to search for')
+                    .setRequired(true)
+                    .setAutocomplete(true)
             )
     )
     .addSubcommand((sub) =>
@@ -114,6 +137,17 @@ export const debugCommand = new SlashCommandBuilder()
                 op
                     .setName('path')
                     .setDescription('Path to the file')
+                    .setRequired(true)
+            )
+    )
+    .addSubcommand((sub) =>
+        sub
+            .setName('sql')
+            .setDescription('Executes a SQL query')
+            .addStringOption((op) =>
+                op
+                    .setName('args')
+                    .setDescription('SQL args to execute')
                     .setRequired(true)
             )
     );

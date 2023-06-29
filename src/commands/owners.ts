@@ -34,6 +34,7 @@ const owners = async (
                             .map((id, i) => `${i + 1}. \`${id}\`: <@${id}>`)
                             .join('\n')
                     )
+                    .setColor(parent.options!.themeColor!)
                     .setFields({
                         name: 'Information',
                         value: `- Use \`owners add [id]\` to add an owner\n- Use \`owners remove [id]\` to remove an owner`

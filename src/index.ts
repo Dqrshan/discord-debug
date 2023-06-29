@@ -21,6 +21,8 @@ import { commands, loadCommands } from './lib/Command';
 import { debugCommand } from './lib/constants';
 import fetch from 'node-fetch';
 import { capitalize } from './lib';
+import { ConnectionOptions } from 'mysql2';
+import { Doc, DocTypes } from 'discordjs-docs-parser';
 
 const { version, name } = require('../package.json');
 
@@ -41,6 +43,22 @@ fetch(`https://registry.npmjs.org/${name}/`).then((res) => {
     });
 });
 
+export interface Options {
+    owners?: Snowflake[];
+    secrets?: any[];
+    registerApplicationCommands?: boolean | false;
+    loadDefaultListeners?: {
+        message?: boolean | true;
+        interaction?: boolean | true;
+    };
+    themeColor?: `#${string}`;
+    sqlConnectionOptions?: ConnectionOptions;
+}
+
+Doc.setGlobalOptions({
+    escapeMarkdownLinks: true
+});
+
 class Debugger {
     public owners: Snowflake[];
     /**
@@ -49,15 +67,77 @@ class Debugger {
      * @param options Debugger options
      */
     public constructor(public client: Client, public options?: Options) {
+        if (!options)
+            options = {
+                owners: [],
+                secrets: [client.token],
+                registerApplicationCommands: false,
+                loadDefaultListeners: {
+                    message: true,
+                    interaction: true
+                },
+                themeColor: '#000000',
+                sqlConnectionOptions: {}
+            };
+        /** load debug.config */
         fs.readFileSync('debug.config', { flag: 'a+' });
+
+        /** handle type/instance errors */
         if (!(client instanceof Client))
             throw new TypeError(
                 '`client` must be a Discord.js Client instance.'
             );
+        if (options?.themeColor && !options.themeColor.startsWith('#'))
+            throw new Error(
+                'Theme color must be a hex color code. Eg: #000000'
+            );
+        if (options?.loadDefaultListeners) {
+            if (
+                options.loadDefaultListeners.interaction &&
+                !options.registerApplicationCommands
+            ) {
+                throw new Error(
+                    'Cannot load default listeners for interactions without registering application commands.'
+                );
+            }
+            if (
+                !options.loadDefaultListeners &&
+                options.registerApplicationCommands
+            ) {
+                this.log(
+                    'Application command registry is enabled, but interaction listeners are not! Make sure to handle your `interactionCreate` event.',
+                    'warn'
+                );
+            }
 
+            if (!options.loadDefaultListeners.message) {
+                this.log(
+                    'Message listeners are disabled. Make sure to handle your `messageCreate` event!',
+                    'warn'
+                );
+            }
+        }
+
+        /** set default values */
+        if (
+            options &&
+            (!options.themeColor || !options.themeColor.startsWith('#'))
+        )
+            options.themeColor = '#000000';
         if (options?.secrets && !Array.isArray(options.secrets))
             options.secrets = [];
+        if (options && !options.themeColor) options.themeColor = '#000000';
+        if (options && !options?.loadDefaultListeners)
+            options.loadDefaultListeners = {
+                interaction: true,
+                message: true
+            };
+        if (options && !options?.registerApplicationCommands)
+            options.registerApplicationCommands = false;
+        if (options && !options.secrets) options.secrets = [];
         this.owners = options?.owners ?? this._syncOwners();
+
+        /** ready event */
         client.once('ready', async (core) => {
             await loadCommands(this);
             if (options?.registerApplicationCommands) {
@@ -121,23 +201,58 @@ class Debugger {
 
         client.on('interactionCreate', async (interaction) => {
             if (!options?.registerApplicationCommands) return;
+            if (!options.loadDefaultListeners?.interaction) return;
+
             if (interaction.isAutocomplete()) {
-                const cmds = commands.map((c) => c.name);
-                const focused = interaction.options.getFocused();
-                const filtered = cmds.filter((c) =>
-                    c.includes(focused.toLowerCase())
-                );
-                await interaction
-                    .respond(
-                        filtered.map((c) => ({
-                            name: capitalize(c),
-                            value: c
-                        }))
-                    )
-                    .catch(() => {});
+                const sub = interaction.options.getSubcommand(true);
+
+                if (sub) {
+                    if (sub === 'help') {
+                        const cmds = commands.map((c) => c.name);
+                        const focused = interaction.options.getFocused();
+                        const filtered = cmds.filter((c) =>
+                            c.includes(focused.toLowerCase())
+                        );
+                        await interaction
+                            .respond(
+                                filtered.map((c) => ({
+                                    name: capitalize(c),
+                                    value: c
+                                }))
+                            )
+                            .catch(() => {});
+                        return;
+                    } else if (sub === 'docs') {
+                        const doc = await Doc.fetch('main', {
+                            force: true
+                        });
+                        const res =
+                            doc
+                                .search(interaction.options.getFocused())
+                                ?.filter(
+                                    (element) =>
+                                        element.docType !== DocTypes.Param
+                                ) ?? [];
+
+                        await interaction
+                            .respond(
+                                res.map((r) => ({
+                                    name: r.formattedName,
+                                    value: r.formattedName
+                                }))
+                            )
+                            .catch(() => {});
+                        return;
+                    }
+                }
                 return;
             }
-            if (!(interaction instanceof ChatInputCommandInteraction)) return;
+
+            if (
+                !(interaction instanceof ChatInputCommandInteraction) ||
+                !interaction.isCommand()
+            )
+                return;
             if (!this.owners.includes(interaction.user.id)) {
                 const content =
                     'This command can only be used by the owners of the bot.';
@@ -151,8 +266,7 @@ class Debugger {
                       });
                 return;
             }
-            if (!interaction.isCommand()) return;
-            if (!this.options?.registerApplicationCommands) return;
+
             const command = interaction.options.getSubcommandGroup()
                 ? commands.get(interaction.options.getSubcommandGroup()!)
                 : commands.get(interaction.options.getSubcommand()!);
@@ -168,6 +282,7 @@ class Debugger {
         });
     }
     public async messageRun(message: Message, args: string[]) {
+        if (!this.options?.loadDefaultListeners?.message) return;
         if (!(message instanceof Message))
             throw new TypeError(
                 '`message` must be a Discord.js Message instance.'
@@ -278,9 +393,5 @@ class Debugger {
     }
 }
 
-export { Debugger, commands };
-export interface Options {
-    owners?: Snowflake[];
-    secrets?: any[];
-    registerApplicationCommands?: boolean | false;
-}
+export { Debugger, commands as Commands };
+export * as Utils from './lib';

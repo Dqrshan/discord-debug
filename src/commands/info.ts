@@ -33,6 +33,7 @@ const info = async (
         .setTitle(
             `discord.js \`${djsVersion}\`, \`Node.js ${process.version}\` on \`${process.platform}\``
         )
+        .setColor(parent.options?.themeColor!)
         .addFields(
             {
                 name: `Process start`,
