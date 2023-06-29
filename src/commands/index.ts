@@ -6,3 +6,4 @@ export * from './owners';
 export * from './shard';
 export * from './shell';
 export * from './source';
+export * from './stats';

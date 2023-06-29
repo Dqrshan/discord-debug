@@ -7,6 +7,9 @@ export const debugCommand = new SlashCommandBuilder()
         sub.setName('info').setDescription('[Default] Main debug information')
     )
     .addSubcommand((sub) =>
+        sub.setName('stats').setDescription('Returns the machine\'s statistics for this instance.')
+    )
+    .addSubcommand((sub) =>
         sub
             .setName('help')
             .setDescription('List of all debug commands')
