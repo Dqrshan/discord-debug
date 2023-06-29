@@ -1,17 +1,18 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
 import { Command, commands } from '../lib/Command';
 import { capitalize } from '../lib';
+import { Debugger } from '..';
 
 const command: Command = {
     name: 'help',
     aliases: ['h'],
     description: 'List of all debug commands',
-    messageRun: async (message, _, args) => {
-        await help(message, args);
+    messageRun: async (message, parent, args) => {
+        await help(message, args, parent);
     },
-    interactionRun: async (interaction, _) => {
+    interactionRun: async (interaction, parent) => {
         const cmd = interaction.options.getString('command', false);
-        await help(interaction, cmd);
+        await help(interaction, cmd, parent);
     }
 };
 
@@ -19,7 +20,8 @@ export default command;
 
 const help = async (
     ctx: Message | ChatInputCommandInteraction,
-    cmd: string | null
+    cmd: string | null,
+    parent: Debugger
 ) => {
     if (
         cmd &&
@@ -36,6 +38,7 @@ const help = async (
             .setURL(
                 `https://lxrnz.gitbook.io/discord-debug/commands/${command?.name}`
             )
+            .setColor(parent.options!.themeColor!)
             .setFields(
                 {
                     name: 'Details',
@@ -59,10 +62,11 @@ const help = async (
         return ctx.reply({ embeds: [embed] });
     }
     const embed = new EmbedBuilder()
-        .setTitle('Available Commands')
+        .setTitle(`Available Commands (${commands.size})`)
         .setDescription(
             commands.map((c) => `\`${capitalize(c.name)}\``).join(', ')
         )
+        .setColor(parent.options!.themeColor!)
         .setThumbnail(ctx.client.user.displayAvatarURL())
         .setFooter({
             text: `discord-debug v${
