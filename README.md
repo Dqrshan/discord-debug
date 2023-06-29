@@ -22,9 +22,12 @@ npm i discord-debug@latest
 
 ---
 
-## Documentation
+## Quick Links
 
--   [https://lxrnz.gitbook.io/discord-debug/](https://lxrnz.gitbook.io/discord-debug/ 'npm i discord-debug')
+-   [Documentation](https://lxrnz.gitbook.io/discord-debug/ 'Documentation')
+-   [Discord](https://dsc.gg/lorenz/ 'Discord')
+-   [Features](https://lxrnz.gitbook.io/discord-debug/commands/info)
+-   [Examples](https://github.com/Dqrshan/discord-debug/tree/master/examples)
 
 ## Basic Usage
 
@@ -42,12 +45,23 @@ const client = new Client({
 });
 
 const debug = new Debugger(client, {
-    /* secrets to hide during eval (default: client token) */
+    // theme color of the client used in all embeds (default: #000000)
+    themeColor: '#00ffff',
+    // secrets to hide during eval (default: client token)
     secrets: [],
-    /* owners that can use this tool (default: client application owner(s)) */
+    // owners that can use this tool (default: client application owner(s))
     owners: [],
-    /* integrate slash commands [/debug] (default: false) */
-    registerApplicationCommands: true
+    // integrate slash commands [/debug] (default: false)
+    registerApplicationCommands: true,
+    // load default event listeners [messageCreate, interactionCreate] (default: *see below*)
+    loadDefaultListeners: {
+        message: true,
+        interaction: true
+    },
+    // MySQL connection options for sql command (default: {})
+    sqlConnectionOptions: {
+        uri: 'mysql://root@password@localhost:3306/database'
+    }
 });
 
 client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
