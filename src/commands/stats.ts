@@ -1,89 +1,198 @@
-import { ChatInputCommandInteraction, Message } from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    Message,
+    bold,
+    inlineCode
+} from 'discord.js';
 import { Command } from '../lib/Command';
-import { EmbedBuilder } from '@discordjs/builders';
-import si from 'systeminformation';
+import { Debugger } from '..';
+import os from 'node:os';
+import { DateFormat, System, plural } from '../lib';
 
 const command: Command = {
-  name: 'stats',
-  aliases: ['st'],
-  description: 'Returns the machine\'s statistics for this instance.',
-  messageRun: async (message, _, __) => {
-    await help(message);
-  },
-  interactionRun: async (interaction, _) => {
-    await help(interaction);
-  }
+    name: 'stats',
+    aliases: ['statistics'],
+    description: "View the machine's statistics for this instance.",
+    messageRun: async (message, parent, __) => {
+        await stats(message, parent);
+    },
+    interactionRun: async (interaction, parent) => {
+        await stats(interaction, parent);
+    }
 };
 
 export default command;
 
-const help = async (ctx: Message | ChatInputCommandInteraction) => {
-  const cpuInfo = await si.cpu();
-  const cpuCores = cpuInfo.cores;
-  const cpuManufacturer = cpuInfo.manufacturer;
-  const cpuBrand = cpuInfo.brand;
+const stats = async (
+    ctx: Message | ChatInputCommandInteraction,
+    parent: Debugger
+) => {
+    const {} = process.resourceUsage();
 
-  const diskIO = await si.disksIO();
-  const diskReads = await getReadableFileSize(diskIO.rIO_sec);
-  const diskWrites = await getReadableFileSize(diskIO.wIO_sec);
+    const cpuu = (await new Promise((resolve) => {
+        cpuUsage((cpu: number) => {
+            resolve(cpu);
+        });
+    })) as number;
 
-  const networkStats = await si.networkStats();
-  const networkUsage = await getReadableFileSize(networkStats[0].tx_sec);
+    const [_, free, used] = (
+        (await new Promise((resolve) => {
+            hardDriveInfo((total: number, free: number, used: number) => {
+                resolve([total, free, used]);
+            });
+        })) as number[]
+    ).map((x) => formatSize(x));
 
-  const totalMemory = await getReadableMemorySizeMB((await si.mem()).total);
-  const freeMemory = await getReadableMemorySizeMB((await si.mem()).free);
-  const diskUsage = (await si.fsSize())[0].use;
-  const uptime = await getUnixTimestamp();
-  const systemTemperature = (await si.cpuTemperature()).main;
-  const processCount = (await si.processes()).all;
-  const systemLoad = (await si.currentLoad()).avgLoad;
-  const osInfo = await si.osInfo();
-  const memoryUsage = await getReadableMemorySize((await si.mem()).used);
+    let loads = os.loadavg().map(function (x) {
+        return x / os.cpus().length;
+    });
+    let avgLoad = parseFloat(Math.max.apply(Math, loads).toFixed(2));
 
-  const embed = new EmbedBuilder()
-    .addFields({ name: `CPU`, value: `- Model: ${cpuManufacturer} ${cpuBrand}\n- Number of cores: ${cpuCores}\n- Temperature: ${systemTemperature}°C`, inline: true})
-    .addFields({ name: `Disk I/O`, value: `- Usage: ${diskUsage}%\n- Reads: ${diskReads}/s\n- Writes: ${diskWrites}/s`, inline: true})
-    .addFields({ name: `Network I/O`, value: `- Usage: ${networkUsage}/s\n- Total Memory: ${totalMemory}\n- Free Memory: ${freeMemory}`, inline: false})
-    .addFields({ name: `Uptime`, value: `<t:${uptime}:R>`, inline: false})
-    .addFields({ name: `Process Count`, value: `${processCount}`, inline: true})
-    .addFields({ name: `System Load`, value: `${systemLoad}% (per minute)`, inline: true})
-    .addFields({ name: `OS Info`, value: `- Platform: ${osInfo.platform}\n- Distribution: ${osInfo.distro} ${osInfo.release} ${osInfo.arch}\n`, inline: false})
-    .addFields({ name: `Memory Usage`, value: `${memoryUsage}`, inline: false})
+    const embed = new EmbedBuilder()
+        .setTitle(
+            `${os.hostname} ${inlineCode(
+                os.machine()
+            )}, ${os.type()} ${inlineCode(os.arch())}`
+        )
+        .setColor(parent.options!.themeColor!)
+        // .setDescription(
+        //     [
+        //         `- Running on ${bold(os.hostname())} ${bold(os.machine())}.`,
+        //         `\t- ${inlineCode(
+        //             `${os.type()} ${os.arch()}`
+        //         )}, ${os.platform()} ${inlineCode(os.release())}.`,
+        //         `- ${bold(os.cpus()[0].model)} with ${bold(
+        //             plural(os.cpus().length, 'core')
+        //         )} at ${bold(
+        //             inlineCode(String(sum(os.cpus().map((x) => x.speed))))
+        //         )} MHz.`
+        //     ].join('\n')
+        // )
+        .setFooter({
+            text: `${os.cpus()[0].model}, ${plural(
+                os.cpus().length,
+                'core'
+            )}, speed: ${sum(os.cpus().map((x) => x.speed))} MHz`
+        })
+        .setFields(
+            {
+                name: `Uptime`,
+                value: DateFormat.format(System.processReadyAt(), 'R'),
+                inline: true
+            },
+            {
+                name: 'System Load',
+                value: `${avgLoad}%`,
+                inline: true
+            },
+            {
+                name: 'CPU Usage',
+                value: `${(cpuu * 100).toFixed(2)}%`,
+                inline: true
+            },
+            {
+                name: `Memory`,
+                value: `${System.memory().rss} / ${formatSize(
+                    os.totalmem()
+                )} (${formatSize(os.freemem())} free)`,
+                inline: true
+            },
+            {
+                name: 'Hard Drive',
+                value: `${used} / ${free} remaining`,
+                inline: true
+            },
+            {
+                name: 'Platform',
+                value: `${bold(os.platform())} ${inlineCode(os.release())}`,
+                inline: false
+            }
+        );
 
-  return ctx.reply({ embeds: [embed] });
+    return ctx.reply({ embeds: [embed] });
 };
 
-async function getUnixTimestamp() {
-    const uptimeInSeconds = Math.round(process.uptime());
-    return Math.floor(Date.now() / 1000) - uptimeInSeconds;
-  }
+const formatSize = (size: number) => {
+    if (size < 1024) {
+        return `${size}B`;
+    } else if (size < 1024 * 1024) {
+        return `${(size / 1024).toFixed(2)}KB`;
+    } else if (size < 1024 * 1024 * 1024) {
+        return `${(size / (1024 * 1024)).toFixed(2)}MB`;
+    } else {
+        return `${(size / (1024 * 1024 * 1024)).toFixed(2)}GB`;
+    }
+};
 
-async function getReadableMemorySize(size: number) {
-  if (size < 1024) {
-    return `${size}B`;
-  } else if (size < 1024 * 1024) {
-    return `${(size / 1024).toFixed(2)}KB`;
-  } else if (size < 1024 * 1024 * 1024) {
-    return `${(size / (1024 * 1024)).toFixed(2)}MB`;
-  } else {
-    return `${(size / (1024 * 1024 * 1024)).toFixed(2)}GB`;
-  }
-}
+const sum = (arr: number[]) => {
+    return arr.reduce((a, b) => a + b, 0);
+};
 
-async function getReadableMemorySizeMB(size: number) {
-  return `${(size / (1024 * 1024)).toFixed(2)}MB`;
-}
+const cpuUsage = (callback: Function) => {
+    var stats1 = cpuInfo();
+    var startIdle = stats1.idle;
+    var startTotal = stats1.total;
 
-async function getReadableFileSize(size: number | null) {
-  if (size === null) {
-    return 'N/A';
-  } else if (size < 1024) {
-     return `${(size / 1024).toFixed(2)} KB`;
-  } else if (size < 1024 * 1024) {
-     return `${(size / 1024).toFixed(2)} KB`;
-  } else if (size < 1024 * 1024 * 1024) {
-     return `${(size / 1024).toFixed(2)} KB`;
-  } else {
-    return `${(size / (1024 * 1024 * 1024)).toFixed(2)}GB`;
-  }
-}
+    setTimeout(function () {
+        var stats2 = cpuInfo();
+        var endIdle = stats2.idle;
+        var endTotal = stats2.total;
+
+        var idle = endIdle - startIdle;
+        var total = endTotal - startTotal;
+        var perc = idle / total;
+
+        callback(1 - perc);
+    }, 1000);
+};
+
+const cpuInfo = () => {
+    var cpus = os.cpus();
+
+    var user = 0;
+    var nice = 0;
+    var sys = 0;
+    var idle = 0;
+    var irq = 0;
+    var total = 0;
+
+    for (var cpu in cpus) {
+        if (!cpus.hasOwnProperty(cpu)) continue;
+        user += cpus[cpu].times.user;
+        nice += cpus[cpu].times.nice;
+        sys += cpus[cpu].times.sys;
+        irq += cpus[cpu].times.irq;
+        idle += cpus[cpu].times.idle;
+    }
+
+    var total = user + nice + sys + idle + irq;
+
+    return {
+        idle: idle,
+        total: total
+    };
+};
+
+const hardDriveInfo = (callback: Function) => {
+    require('child_process').exec(
+        'df -k',
+        (_: any, stdout: string, __: any) => {
+            var total = 0;
+            var used = 0;
+            var free = 0;
+
+            var lines = stdout.split('\n');
+
+            var str_disk_info = lines[1].replace(/[\s\n\r]+/g, ' ');
+
+            var disk_info = str_disk_info.split(' ');
+
+            total = Math.ceil(parseInt(disk_info[1]) * 1024 * 1024) / 10;
+            used = Math.ceil(parseInt(disk_info[2]) * 1024 * 1024) / 10;
+            free = Math.ceil(parseInt(disk_info[3]) * 1024 * 1024) / 10;
+
+            callback(total, free, used);
+        }
+    );
+};
