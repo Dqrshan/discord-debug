@@ -100,10 +100,7 @@ const sql = async (
             });
         } else {
             msg.add(
-                `\n${result.affectedRows} ${plural(
-                    result.affectedRows,
-                    'row'
-                )} affected (${time})`
+                `\n${plural(result.affectedRows, 'row')} affected (${time})`
             );
         }
 
@@ -111,12 +108,7 @@ const sql = async (
             msg.add(`\n${table.toString()}`);
         }
         if (result instanceof Array) {
-            msg.add(
-                `\n${result.length} ${plural(
-                    result.length,
-                    'row'
-                )} in set (${time})`
-            );
+            msg.add(`\n${plural(result.length, 'row')} in set (${time})`);
         }
         return connection.destroy();
     });

@@ -3,7 +3,7 @@ import { Collection } from 'discord.js';
 import { escapeCodeBlock } from 'discord.js';
 
 export const plural = (num: number, str: string) => {
-    return num === 1 ? str : `${str}s`;
+    return num === 1 ? `${num} ${str}` : `${num} ${str}s`;
 };
 
 export const join = (arr: any[], sep: string, last: string) => {
