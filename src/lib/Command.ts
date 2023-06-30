@@ -5,7 +5,7 @@ import {
     SlashCommandBuilder
 } from 'discord.js';
 import { Debugger } from '..';
-import { readdirSync } from 'fs';
+import { readdirSync } from 'node:fs';
 
 export interface Command {
     name: string;
