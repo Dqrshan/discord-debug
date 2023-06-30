@@ -56,19 +56,6 @@ const stats = async (
             )}, ${os.type()} ${inlineCode(os.arch())}`
         )
         .setColor(parent.options!.themeColor!)
-        // .setDescription(
-        //     [
-        //         `- Running on ${bold(os.hostname())} ${bold(os.machine())}.`,
-        //         `\t- ${inlineCode(
-        //             `${os.type()} ${os.arch()}`
-        //         )}, ${os.platform()} ${inlineCode(os.release())}.`,
-        //         `- ${bold(os.cpus()[0].model)} with ${bold(
-        //             plural(os.cpus().length, 'core')
-        //         )} at ${bold(
-        //             inlineCode(String(sum(os.cpus().map((x) => x.speed))))
-        //         )} MHz.`
-        //     ].join('\n')
-        // )
         .setFooter({
             text: `${os.cpus()[0].model}, ${plural(
                 os.cpus().length,
