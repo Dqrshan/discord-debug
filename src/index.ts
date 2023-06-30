@@ -272,12 +272,14 @@ class Debugger {
                 : commands.get(interaction.options.getSubcommand()!);
             if (!command) return;
             if (command.interactionRun) {
-                await command
-                    .interactionRun(
+                try {
+                    await command.interactionRun(
                         interaction as ChatInputCommandInteraction,
                         this
-                    )
-                    .catch((err) => this.log(err, 'error'));
+                    );
+                } catch (error) {
+                    this.log(error instanceof Error && error.stack, 'error');
+                }
             }
         });
     }
@@ -296,9 +298,11 @@ class Debugger {
             commands.find((c) => c.aliases && c.aliases.includes(cx));
         if (!command) return;
         if (command.messageRun) {
-            await command
-                .messageRun(message, this, args.join(' '))
-                .catch((err) => this.log(err, 'error'));
+            try {
+                await command.messageRun(message, this, args.join(' '));
+            } catch (error) {
+                this.log(error instanceof Error && error.stack, 'error');
+            }
         }
 
         return message;
@@ -374,22 +378,15 @@ class Debugger {
         return owners;
     }
 
-    public log(message: string, type: 'error' | 'warn' | 'info' | 'debug') {
-        const pad = ' '.repeat(2);
+    public log(message: any, type: 'error' | 'warn' | 'info' | 'debug') {
         if (type === 'error')
-            console.error(`${redBright('[Debugger: ERROR]')}${pad} ${message}`);
+            console.error(`${redBright('[Debugger: ERROR]')} ${message}`);
         else if (type === 'warn')
-            console.warn(
-                `${yellowBright('[Debugger:  WARN]')}${pad} ${message}`
-            );
+            console.warn(`${yellowBright('[Debugger:  WARN]')} ${message}`);
         else if (type === 'info')
-            console.info(
-                `${greenBright('[Debugger:  INFO]')}${pad} ${message}`
-            );
+            console.info(`${greenBright('[Debugger:  INFO]')} ${message}`);
         else if (type === 'debug')
-            console.debug(
-                `${blueBright('[Debugger: DEBUG]')}${pad} ${message}`
-            );
+            console.debug(`${blueBright('[Debugger: DEBUG]')} ${message}`);
     }
 }
 
