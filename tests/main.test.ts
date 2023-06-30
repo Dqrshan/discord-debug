@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 import { Debugger } from '../dist';
 
-const { token } = require('./config');
+const { token, mysql } = require('./config');
 
 const client = new Client({
     intents: [
@@ -17,7 +17,10 @@ const client = new Client({
 
 const debug = new Debugger(client, {
     registerApplicationCommands: true,
-    themeColor: '#ff6666'
+    themeColor: '#ff6666',
+    sqlConnectionOptions: {
+        uri: mysql
+    }
 });
 
 client.on('ready', () => console.log(`Logged in as ${client.user!.tag}`));
