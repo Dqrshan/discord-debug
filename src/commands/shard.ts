@@ -6,7 +6,7 @@ import {
     Message
 } from 'discord.js';
 import type { Debugger } from '../';
-import { Paginator, inspect } from '../lib';
+import { Paginator, inspect, warnEmbed } from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
@@ -33,11 +33,26 @@ const shard = async (
     args: string
 ) => {
     const isMsg = message instanceof Message;
-    if (!args) return message.reply('Missing Arguments.');
-    if (!parent.client.shard)
+    if (!args)
+        return message.reply({
+            embeds: [
+                warnEmbed('Missing argument', 'Please provide a code', 'ERROR')
+            ]
+        });
+    if (!parent.client.shard) {
+        const em = warnEmbed(
+            'Shard Manager not found',
+            'This command is only available for shards',
+            'ERROR'
+        );
         return isMsg
-            ? message.reply('Shard Manager not found.')
-            : await message.editReply('Shard Manage not found.');
+            ? message.reply({
+                  embeds: [em]
+              })
+            : await message.editReply({
+                  embeds: [em]
+              });
+    }
     let evalFunction: (client: Client) => any;
     try {
         // eslint-disable-next-line no-new-func

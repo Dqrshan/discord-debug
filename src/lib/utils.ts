@@ -1,5 +1,5 @@
 import util from 'util';
-import { Collection } from 'discord.js';
+import { Collection, ColorResolvable, EmbedBuilder } from 'discord.js';
 import { escapeCodeBlock } from 'discord.js';
 
 export const plural = (num: number, str: string) => {
@@ -136,3 +136,37 @@ export function count(argument: any) {
     }
     return null;
 }
+
+export const warnEmbed = (
+    header: string,
+    message: string,
+    type: WarnType
+): EmbedBuilder => {
+    const props: Record<WarnType, WarnProps> = {
+        ERROR: {
+            icon: 'https://cdn.discordapp.com/emojis/1119237178975866881.webp?size=96&quality=lossless',
+            color: 'Red'
+        },
+        WARN: {
+            icon: 'https://cdn.discordapp.com/emojis/1119237147849916448.webp?size=96&quality=lossless',
+            color: 'Yellow'
+        },
+        SUCCESS: {
+            icon: 'https://cdn.discordapp.com/emojis/1119236913623207966.webp?size=96&quality=lossless',
+            color: 'Green'
+        }
+    };
+    return new EmbedBuilder()
+        .setAuthor({
+            name: header,
+            iconURL: props[type].icon
+        })
+        .setColor(props[type].color)
+        .setDescription(message);
+};
+
+type WarnType = 'ERROR' | 'WARN' | 'SUCCESS';
+type WarnProps = {
+    icon: string;
+    color: ColorResolvable;
+};

@@ -7,7 +7,7 @@ import {
 import { Command } from '../lib/Command';
 import { Debugger } from '..';
 import { AsciiTable3 } from 'ascii-table3';
-import { Paginator, plural } from '../lib';
+import { Paginator, plural, warnEmbed } from '../lib';
 import { createConnection } from 'mysql2';
 
 const command: Command = {
@@ -15,6 +15,16 @@ const command: Command = {
     description: 'Executes a SQL query',
     aliases: ['query'],
     messageRun: async (message, parent, args) => {
+        if (!args)
+            return message.reply({
+                embeds: [
+                    warnEmbed(
+                        'Missing argument',
+                        'Please provide a query',
+                        'ERROR'
+                    )
+                ]
+            });
         await sql(message, parent, args);
         return;
     },
@@ -37,9 +47,14 @@ const sql = async (
     args: string
 ) => {
     if (!parent.options || !parent.options.sqlConnectionOptions) {
+        const em = warnEmbed(
+            'SQL connection options not provided',
+            'Please provide SQL connection options in the Debugger options',
+            'ERROR'
+        );
         return message instanceof Message
-            ? message.reply('SQL connection options not provided')
-            : await message.editReply('SQL connection options not provided');
+            ? message.reply({ embeds: [em] })
+            : await message.editReply({ embeds: [em] });
     }
     const connection = createConnection(parent.options?.sqlConnectionOptions!);
     // const isMsg = message instanceof Message;

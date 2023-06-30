@@ -1,7 +1,7 @@
 import child from 'child_process';
 import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import type { Debugger } from '../';
-import { Paginator, codeBlock } from '../lib';
+import { Paginator, codeBlock, warnEmbed } from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
@@ -9,6 +9,16 @@ const command: Command = {
     aliases: ['sh', 'exec', 'bash'],
     description: 'Executes a shell command',
     messageRun: async (message, parent, args) => {
+        if (!args)
+            return message.reply({
+                embeds: [
+                    warnEmbed(
+                        'Missing argument',
+                        'Please provide a command',
+                        'ERROR'
+                    )
+                ]
+            });
         await shell(message, parent, args);
     },
     interactionRun: async (interaction, parent) => {
@@ -29,7 +39,6 @@ const shell = async (
     args: string
 ) => {
     const isMsg = message instanceof Message;
-    if (!args) return message.reply('Missing Arguments.');
 
     const shell =
         process.env.SHELL ||
@@ -58,9 +67,14 @@ const shell = async (
     ]);
     const timeout = setTimeout(async () => {
         kill(res, 'SIGTERM');
+        const em = warnEmbed(
+            'Shell timeout',
+            'The shell process has been killed due to timeout',
+            'ERROR'
+        );
         isMsg
-            ? message.reply('Shell timeout.')
-            : await message.editReply('Shell timeout.');
+            ? message.reply({ embeds: [em] })
+            : await message.editReply({ embeds: [em] });
     }, 180000);
 
     await msg.addAction(

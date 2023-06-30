@@ -1,6 +1,6 @@
 import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import type { Debugger } from '..';
-import { Paginator, count, inspect, table, typeFind } from '../lib';
+import { Paginator, count, inspect, table, typeFind, warnEmbed } from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
@@ -8,6 +8,16 @@ const command: Command = {
     aliases: ['jsi', 'jsinfo'],
     description: 'Returns the type of evaluated code',
     messageRun: async (message: Message, parent: Debugger, args: string) => {
+        if (!args)
+            return message.reply({
+                embeds: [
+                    warnEmbed(
+                        'Missing argument',
+                        'Please provide a code',
+                        'ERROR'
+                    )
+                ]
+            });
         await jsi(message, parent, args);
     },
     interactionRun: async (interaction, parent) => {
@@ -29,10 +39,6 @@ const jsi = async (
 ) => {
     // @ts-ignore
     const { client } = parent; // for eval
-    const isMessage = message instanceof Message;
-    if (isMessage && !args) {
-        return message.reply('Missing Arguments.');
-    }
 
     const res = new Promise((resolve) => resolve(eval(args ?? '')));
     let msg!: Paginator;

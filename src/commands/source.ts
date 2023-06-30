@@ -5,7 +5,7 @@ import {
     ChatInputCommandInteraction,
     Message
 } from 'discord.js';
-import { Paginator, HLJS } from '../lib';
+import { Paginator, HLJS, warnEmbed } from '../lib';
 import type { Debugger } from '../';
 import { Command } from '../lib/Command';
 
@@ -14,6 +14,16 @@ const command: Command = {
     aliases: ['src', 'file', 'cat'],
     description: 'Shows the source code of a file',
     messageRun: async (message, parent, args) => {
+        if (!args)
+            return message.reply({
+                embeds: [
+                    warnEmbed(
+                        'Missing argument',
+                        'Please provide a file path',
+                        'ERROR'
+                    )
+                ]
+            });
         await source(message, parent, args);
     },
     interactionRun: async (interaction, parent) => {
@@ -33,7 +43,6 @@ const source = async (
     parent: Debugger,
     args: string
 ) => {
-    if (!args) return message.reply('Missing Arguments.');
     const filename = args;
     let msg;
     fs.readFile(filename, async (err, data) => {

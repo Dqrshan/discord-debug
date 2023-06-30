@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
-import { Paginator, HLJS } from '../lib';
+import { Paginator, HLJS, warnEmbed } from '../lib';
 import type { Debugger } from '../';
 import { Command } from '../lib/Command';
 
@@ -8,7 +8,16 @@ const command: Command = {
     name: 'curl',
     description: 'Curl hyper links',
     messageRun: async (message: Message, parent: Debugger, args: string) => {
-        if (!args) return message.reply('Missing Arguments.');
+        if (!args)
+            return message.reply({
+                embeds: [
+                    warnEmbed(
+                        'Missing argument',
+                        'Please provide a url',
+                        'ERROR'
+                    )
+                ]
+            });
 
         await curl(message, parent, args);
     },
