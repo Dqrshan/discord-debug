@@ -23,21 +23,27 @@ import fetch from 'node-fetch';
 import { capitalize } from './lib';
 import { ConnectionOptions } from 'mysql2';
 import { Doc, DocTypes } from 'discordjs-docs-parser';
+import { AsciiTable3 } from 'ascii-table3';
 
 const { version, name } = require('../package.json');
 
 fetch(`https://registry.npmjs.org/${name}/`).then((res) => {
     res.json().then((json) => {
         if (json['dist-tags'].latest !== version) {
+            const table = new AsciiTable3()
+                .setStyle('unicode-round')
+                .setHeading(bold(yellowBright('NEW UPDATE AVAILABLE')))
+                .setAlignCenter(1)
+                .addRow(
+                    `v${redBright(version)} -> v${greenBright(
+                        json['dist-tags'].latest
+                    )}`
+                )
+                .addRow(`${italic(whiteBright(`npm i ${name}@latest`))}`);
             console.log(
-                `┌────────────────────────────┐
-│         ${bold(yellowBright('NEW UPDATE'))}         │
-├────────────────────────────┤
-│      v${redBright(version)} -> v${greenBright(
-                    json['dist-tags'].latest
-                )}      │
-│ ${italic(whiteBright(`npm i ${name}@latest`))} │
-└────────────────────────────┘`
+                `\n${table.toString()}\n\n${bold(
+                    'Please update to the latest version to access more features.'
+                )}\n`
             );
         }
     });
