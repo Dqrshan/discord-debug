@@ -7,17 +7,10 @@ export const debugCommand = new SlashCommandBuilder()
         sub.setName('info').setDescription('[Default] Main debug information')
     )
     .addSubcommand((sub) =>
-        sub.setName('stats').setDescription('Returns the machine\'s statistics for this instance.')
-    )
-    .addSubcommand((sub) =>
         sub
-            .setName('git')
-            .setDescription('Executes a git command')
-            .addStringOption((op) =>
-                op
-                    .setName('args')
-                    .setDescription('git args to execute')
-                    .setRequired(true)
+            .setName('stats')
+            .setDescription(
+                "Returns the machine's statistics for this instance."
             )
     )
     .addSubcommand((sub) =>
@@ -146,7 +139,7 @@ export const debugCommand = new SlashCommandBuilder()
             .setDescription('Executes a SQL query')
             .addStringOption((op) =>
                 op
-                    .setName('args')
+                    .setName('query')
                     .setDescription('SQL args to execute')
                     .setRequired(true)
             )
