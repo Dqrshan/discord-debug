@@ -60,7 +60,7 @@ const debug = new Debugger(client, {
     },
     // MySQL connection options for sql command (default: {})
     sqlConnectionOptions: {
-        uri: 'mysql://root@password@localhost:3306/database'
+        uri: 'mysql://root:password@localhost:3306/database'
     }
 });
 
@@ -89,10 +89,10 @@ client.login('token');
 
 ```js
 const { EmbedBuilder } = require('discord.js');
-const { commands } = require('discord-debug');
+const { Commands } = require('discord-debug');
 
 const helpEmbed = new EmbedBuilder().setTitle('Help').setFields(
-    commands.map((data, name) => {
+    Commands.map((data, name) => {
         return {
             name,
             value: `${data.description}\n${data.aliases.join(', ') ?? ''}`,
