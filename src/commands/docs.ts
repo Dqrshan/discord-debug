@@ -9,7 +9,14 @@ import {
 } from 'discord.js';
 import { Command } from '../lib/Command';
 import { Debugger } from '..';
-import { Doc, DocElement, DocTypes } from 'discordjs-docs-parser';
+import {
+    Doc,
+    DocClass,
+    DocElement,
+    DocFunction,
+    DocTypes
+} from 'discordjs-docs-parser';
+import { codeBlock, warnEmbed } from '../lib';
 
 const command: Command = {
     name: 'docs',
@@ -23,7 +30,16 @@ const command: Command = {
         await docs(interaction, parent, args);
     },
     messageRun: async (message, parent, args) => {
-        if (!args) return message.reply('Please provide a query.');
+        if (!args)
+            return message.reply({
+                embeds: [
+                    warnEmbed(
+                        'Missing argument',
+                        'Please provide a query',
+                        'ERROR'
+                    )
+                ]
+            });
         await docs(message, parent, args);
     }
 };
@@ -48,30 +64,20 @@ const docs = async (
         return;
     }
 
-    const docType = element.docType;
+    const embed = resolveElementEmbed(element, doc).setColor(
+        parent.options?.themeColor!
+    );
 
     return isMsg
         ? interaction.reply({
-              embeds: [
-                  new EmbedBuilder()
-                      .setColor(parent.options!.themeColor!)
-                      .setDescription(
-                          `### ${docTypeEmoji(docType)} ${resolveElementString(
-                              element,
-                              doc
-                          )}`
-                      )
-              ]
+              embeds: [embed]
           })
         : await interaction.editReply({
-              content: `### ${docTypeEmoji(docType)} ${resolveElementString(
-                  element,
-                  doc
-              )}`
+              embeds: [embed]
           });
 };
 
-function resolveElementString(element: DocElement, doc: Doc): string {
+function resolveElementEmbed(element: DocElement, doc: Doc): EmbedBuilder {
     const parts = [];
     if (element.docType === 'event') parts.push(`${bold('(event)')} `);
     if (element.static) parts.push(`${bold('(static)')} `);
@@ -92,8 +98,58 @@ function resolveElementString(element: DocElement, doc: Doc): string {
                   hideLinkEmbed(element.url ?? '')
               )}`
             : s[0];
+    const em = new EmbedBuilder().setDescription(
+        `### ${docTypeEmoji(element.docType)} ${parts.join('')}\n${description}`
+    );
 
-    return `${parts.join('')}\n${description}`;
+    if (element instanceof DocClass && element.construct) {
+        em.addFields({
+            name: 'Constructor',
+            value: codeBlock.construct(
+                `new ${element.construct.name}${
+                    element.construct.params
+                        ? `(${element.construct.params
+                              .map((d) => `${d.name}${d.optional ? '?' : ''}`)
+                              .join(', ')})`
+                        : '()'
+                }`,
+                'ts'
+            ),
+            inline: false
+        });
+    }
+    if (element instanceof DocFunction && element.params) {
+        em.addFields({
+            name: 'Usage',
+            value: `${codeBlock.construct(
+                `${element.name}(${element.params
+                    .map(
+                        (p) =>
+                            `${p.name}${p.optional ? '?' : ''}${
+                                p.type ? ': ' + p.type.join(', ') : ''
+                            }`
+                    )
+                    .join(', ')})`,
+                'ts'
+            )}`,
+            inline: false
+        });
+    }
+
+    if (element.meta) {
+        em.addFields({
+            name: 'Defined in',
+            value: hyperlink(
+                `${element.meta.file}:${element.meta.line}`,
+                hideLinkEmbed(
+                    `https://github.com/discordjs/discord.js/blob/main/${element.meta.path}/${element.meta.file}#L${element.meta.line}`
+                )
+            ),
+            inline: true
+        });
+    }
+
+    return em;
 }
 
 function extractGenericTypeInfill(type: string): string {
