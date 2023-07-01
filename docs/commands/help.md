@@ -8,4 +8,5 @@ description: List of all debug commands
 Aliases: `h`
 {% endhint %}
 
-<figure><img src="../.gitbook/assets/help.png" alt=""><figcaption><p>Help</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/help (1).png" alt=""><figcaption><p>Help</p></figcaption></figure>
+

@@ -8,7 +8,7 @@ coverY: 0
 # discord-debug
 
 {% hint style="info" %}
-Latest: `v2.0.5` <mark style="color:green;">**\[Stable]**</mark>
+Latest: `v2.1.0`` `<mark style="color:blue;">`[latest]`</mark><mark style="color:green;">`[stable]`</mark>
 {% endhint %}
 
 ## Installation
@@ -21,7 +21,9 @@ npm i discord-debug@latest
 
 ## Example Usage
 
-```typescript
+{% tabs %}
+{% tab title="JavaScript" %}
+```javascript
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Debugger } = require('discord-debug');
 
@@ -35,9 +37,17 @@ const client = new Client({
 });
 
 const debug = new Debugger(client, {
+    themeColor: '#00ffff',
     secrets: [process.env.WEBHOOK],
     owners: ['838620835282812969'],
-    registerApplicationCommands: true
+    registerApplicationCommands: true,
+    loadDefaultListeners: {
+        message: true,
+        interaction: true
+    },
+    sqlConnectionOptions: {
+        uri: 'mysql://root:password@localhost:3306/database'
+    }
 });
 
 client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
@@ -47,9 +57,55 @@ client.on('messageCreate', async (message) => {
         return message.reply('pong!');
     } else if (message.content.startsWith('!debug')) {
         const args = message.content.split(' ').slice(1);
-        await debug.messageRun(message, args); // handle debugger commands
+        await debug.messageRun(message, args);
     }
 });
 
 client.login('token');
 ```
+{% endtab %}
+
+{% tab title="TypeScript" %}
+```typescript
+import { Client, GatewayIntentBits } from 'discord.js';
+import { Debugger } from 'discord-debug';
+
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.MessageContent
+    ]
+});
+
+const debug = new Debugger(client, {
+    themeColor: '#00ffff',
+    secrets: [process.env.WEBHOOK],
+    owners: ['838620835282812969'],
+    registerApplicationCommands: true,
+    loadDefaultListeners: {
+        message: true,
+        interaction: true
+    },
+    sqlConnectionOptions: {
+        uri: 'mysql://root:password@localhost:3306/database'
+    }
+});
+
+client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
+
+client.on('messageCreate', async (message) => {
+    if (message.content === '!ping') {
+        return message.reply('pong!');
+    } else if (message.content.startsWith('!debug')) {
+        const args = message.content.split(' ').slice(1);
+        await debug.messageRun(message, args);
+    }
+});
+
+client.login('token');
+```
+{% endtab %}
+{% endtabs %}
+
