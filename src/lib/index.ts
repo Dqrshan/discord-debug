@@ -3,3 +3,4 @@ export * from './System';
 export * from './utils';
 export * from './Paginator';
 export * from './HLJS';
+export * from './colors';

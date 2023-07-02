@@ -27,7 +27,7 @@ export interface Command {
 
 const commands = new Collection<string, Command>();
 
-export const loadCommands = async (parent: Debugger) => {
+export const loadCommands = async () => {
     const files = readdirSync(__dirname.replace('lib', 'commands')).filter(
         (f) => f.endsWith('.js') && f.split('.')[0] !== 'index'
     );
@@ -36,8 +36,6 @@ export const loadCommands = async (parent: Debugger) => {
         if (!command || !command.name) continue;
         commands.set(command.name, command);
     }
-
-    parent.log(`Loaded ${commands.size} commands`, 'info');
 };
 
 export { commands };

@@ -7,23 +7,28 @@ import {
     REST,
     Routes
 } from 'discord.js';
-import {
-    yellowBright,
-    redBright,
-    greenBright,
-    blueBright,
-    bold,
-    italic,
-    whiteBright
-} from 'colorette';
+
 import fs from 'fs';
 import { commands, loadCommands } from './lib/Command';
 import { debugCommand } from './lib/constants';
 import fetch from 'node-fetch';
-import { capitalize } from './lib';
+import { capitalize, plural } from './lib';
 import { ConnectionOptions } from 'mysql2';
 import { Doc, DocTypes } from 'discordjs-docs-parser';
 import { AsciiTable3 } from 'ascii-table3';
+import {
+    bgGreen,
+    bgBlue,
+    bgRed,
+    bgYellow,
+    yellow,
+    red,
+    green,
+    bold,
+    italic,
+    white,
+    black
+} from './lib';
 
 const { version, name } = require('../package.json');
 
@@ -32,14 +37,12 @@ fetch(`https://registry.npmjs.org/${name}/`).then((res) => {
         if (json['dist-tags'].latest !== version) {
             const table = new AsciiTable3()
                 .setStyle('unicode-round')
-                .setHeading(bold(yellowBright('NEW UPDATE AVAILABLE')))
+                .setHeading(bold(yellow('NEW UPDATE AVAILABLE')))
                 .setAlignCenter(1)
                 .addRow(
-                    `v${redBright(version)} -> v${greenBright(
-                        json['dist-tags'].latest
-                    )}`
+                    `v${red(version)} -> v${green(json['dist-tags'].latest)}`
                 )
-                .addRow(`${italic(whiteBright(`npm i ${name}@latest`))}`);
+                .addRow(`${italic(white(`npm i ${name}@latest`))}`);
             console.log(
                 `\n${table.toString()}\n\n${bold(
                     'Please update to the latest version to access more features.'
@@ -145,23 +148,18 @@ class Debugger {
 
         /** ready event */
         client.once('ready', async (core) => {
-            await loadCommands(this);
+            await loadCommands();
             if (options?.registerApplicationCommands) {
                 const rest = new REST().setToken(core.token);
                 (async () => {
                     try {
-                        this.log(
-                            `Started refreshing application (/) commands.`,
-                            'info'
-                        );
-
-                        const data = (await rest.put(
+                        await rest.put(
                             Routes.applicationCommands(core.user.id),
                             { body: [debugCommand.toJSON()] }
-                        )) as any;
+                        );
 
                         this.log(
-                            `Successfully reloaded ${data.length} application (/) commands.`,
+                            `Registered debug application (/) command`,
                             'info'
                         );
                     } catch (error) {
@@ -169,40 +167,43 @@ class Debugger {
                     }
                 })();
             }
-            if (!this.owners.length) {
-                this.log(
-                    'No owners were provided, fetching from application...',
-                    'warn'
-                );
-                core.application?.fetch().then((app) => {
-                    if (!app?.owner)
-                        return this.log(
-                            'Application owner could not be fetched.',
-                            'error'
-                        );
 
-                    if (app.owner instanceof Team)
-                        this.owners = app.owner.members
-                            .filter((m) => !this.owners.includes(m.id))
-                            .map((m) => m.id);
-                    else
-                        this.owners = this.owners.includes(app.owner.id)
-                            ? this.owners
-                            : [app.owner.id];
-                    this.log(
-                        `Fetched ${this.owners.length} owner${
-                            this.owners.length > 1 ? 's' : ''
-                        } from application, ${
-                            this.owners.length
-                        } existing owners.`,
-                        'info'
+            this.log(
+                !options?.owners || !options?.owners?.length
+                    ? `No owners were provided, fetching from application...`
+                    : `${plural(
+                          options.owners.length,
+                          'owner'
+                      )} provided, fetching from application...`,
+                'warn'
+            );
+            core.application?.fetch().then((app) => {
+                if (!app?.owner)
+                    return this.log(
+                        'Application owner could not be fetched.',
+                        'error'
                     );
-                    this.owners.forEach((id) => this.addOwner(id));
-                });
-            } else {
+
+                if (app.owner instanceof Team)
+                    this.owners = app.owner.members
+                        .filter((m) => !this.owners.includes(m.id))
+                        .map((m) => m.id);
+                else
+                    this.owners = this.owners.includes(app.owner.id)
+                        ? this.owners
+                        : [app.owner.id];
+                this.log(
+                    `Fetched ${plural(
+                        app.owner instanceof Team ? app.owner.members.size : 1,
+                        'owner'
+                    )} from application, ${plural(
+                        this._syncOwners().length,
+                        'existing owner'
+                    )}.`,
+                    'info'
+                );
                 this.owners.forEach((id) => this.addOwner(id));
-            }
-            this.log(`Debug owners: ${this.owners.join(', ')}`, 'debug');
+            });
         });
 
         client.on('interactionCreate', async (interaction) => {
@@ -321,7 +322,7 @@ class Debugger {
                 this.log(`Cannot sync owners: ${err.message!}`, 'error');
             } else {
                 let stored =
-                    data && data.toString() && data.toString().length
+                    data && data.toString().length
                         ? JSON.parse(data.toString())
                         : { owners: [] };
                 stored.owners
@@ -384,15 +385,24 @@ class Debugger {
         return owners;
     }
 
-    public log(message: any, type: 'error' | 'warn' | 'info' | 'debug') {
-        if (type === 'error')
-            console.error(`${redBright('[Debugger: ERROR]')} ${message}`);
-        else if (type === 'warn')
-            console.warn(`${yellowBright('[Debugger:  WARN]')} ${message}`);
-        else if (type === 'info')
-            console.info(`${greenBright('[Debugger:  INFO]')} ${message}`);
-        else if (type === 'debug')
-            console.debug(`${blueBright('[Debugger: DEBUG]')} ${message}`);
+    protected log(message: any, type: 'error' | 'warn' | 'info' | 'debug') {
+        const prefix = black(` DEBUGGER : ${type.toUpperCase()} `);
+        switch (type) {
+            case 'error':
+                console.error(`[ ${bgRed(prefix)} ]: ${message}`);
+                break;
+            case 'warn':
+                console.warn(`[ ${bgYellow(prefix + ' ')} ]: ${message}`);
+                break;
+            case 'info':
+                console.info(`[ ${bgGreen(prefix + ' ')} ]: ${message}`);
+                break;
+            case 'debug':
+                console.debug(`[ ${bgBlue(prefix)} ]: ${message}`);
+                break;
+            default:
+                console.log(`[ ${bold(white('DEBUGGER'))} ]: ${message}`);
+        }
     }
 }
 
