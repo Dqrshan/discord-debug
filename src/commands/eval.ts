@@ -1,4 +1,8 @@
-import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
+import Discord, {
+    AttachmentBuilder,
+    ChatInputCommandInteraction,
+    Message
+} from 'discord.js';
 import type { Debugger } from '..';
 import { Paginator, inspect, isInstance, isGenerator, warnEmbed } from '../lib';
 import { Command } from '../lib/Command';
@@ -42,7 +46,13 @@ const js = async (
     const { client } = parent; // for eval
     const isMessage = message instanceof Message;
 
-    const res = new Promise((resolve) => resolve(eval(args ?? '')));
+    const res = new Promise((resolve) =>
+        resolve(
+            args.includes('await') || args.includes('return')
+                ? eval(`(async () => {${args}})()`)
+                : eval(args)
+        )
+    ).catch((e) => e.toString());
     let typeOf;
     const result = await res
         .then(async (output) => {
@@ -71,6 +81,17 @@ const js = async (
                                   target instanceof Discord.Collection
                                       ? target.toJSON()
                                       : [target]
+                          });
+                } else if (
+                    typeof target === 'string' &&
+                    /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/gi.test(target)
+                ) {
+                    isMessage
+                        ? await message.reply({
+                              files: [new AttachmentBuilder(target)]
+                          })
+                        : await message.editReply({
+                              files: [new AttachmentBuilder(target)]
                           });
                 }
             }
