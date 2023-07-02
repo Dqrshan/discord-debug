@@ -87,7 +87,7 @@ const stats = async (
             },
             {
                 name: 'Hard Drive',
-                value: `${used} / ${free} remaining`,
+                value: `${used} used, ${free} remaining`,
                 inline: true
             },
             {
