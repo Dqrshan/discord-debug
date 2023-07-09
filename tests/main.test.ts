@@ -1,8 +1,4 @@
-import {
-    ChatInputCommandInteraction,
-    Client,
-    GatewayIntentBits
-} from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { Debugger } from '../dist';
 
 const { token, mysql } = require('./config');
@@ -17,10 +13,15 @@ const client = new Client({
 
 const debug = new Debugger(client, {
     registerApplicationCommands: true,
-    themeColor: '#ff6666',
+    themeColor: '#ffea81',
     sqlConnectionOptions: {
         uri: mysql
-    }
+    },
+    loadDefaultListeners: {
+        message: true,
+        interaction: true
+    },
+    secrets: [token, mysql]
 });
 
 client.on('ready', () => console.log(`Logged in as ${client.user!.tag}`));
