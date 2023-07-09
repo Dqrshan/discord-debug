@@ -49,7 +49,7 @@ const js = async (
     const res = new Promise((resolve) =>
         resolve(
             args.includes('await') || args.includes('return')
-                ? eval(`(async () => {${args}})()`)
+                ? eval(`(async () => {\n${args}\n})()`)
                 : eval(args)
         )
     ).catch((e) => e.toString());
