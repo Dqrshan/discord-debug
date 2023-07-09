@@ -55,10 +55,9 @@ const shard = async (
     }
     let evalFunction: (client: Client) => any;
     try {
-        // eslint-disable-next-line no-new-func
         evalFunction = Function('client', `return ${args}`) as (
             client: Client
-        ) => any; // catch syntax error
+        ) => any;
     } catch (err: any) {
         return isMsg
             ? message.reply(err.toString())
