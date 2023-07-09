@@ -1,7 +1,7 @@
 ---
 description: Represents the debugger client
 cover: >-
-  https://images.unsplash.com/photo-1604076850742-4c7221f3101b?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw0fHxncmFkaWVudHxlbnwwfHx8fDE2ODc2ODk2MDN8MA&ixlib=rb-4.0.3&q=85
+    https://images.unsplash.com/photo-1604076850742-4c7221f3101b?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw0fHxncmFkaWVudHxlbnwwfHx8fDE2ODc2ODk2MDN8MA&ixlib=rb-4.0.3&q=85
 coverY: 0
 ---
 
@@ -15,8 +15,8 @@ new Debugger(client, options);
 
 | PARAMETER | TYPE                                                                    | DESCRIPTION                | OPTIONAL |
 | --------- | ----------------------------------------------------------------------- | -------------------------- | -------- |
-| `client`  | [Client](https://old.discordjs.dev/#/docs/discord.js/main/class/Client) | discord.js Client instance | ❌        |
-| `options` | [Options](../interfaces/options.md)                                     | Debugger options           | ✅        |
+| `client`  | [Client](https://old.discordjs.dev/#/docs/discord.js/main/class/Client) | discord.js Client instance | ❌       |
+| `options` | [Options](../interfaces/options.md)                                     | Debugger options           | ✅       |
 
 ## <mark style="color:blue;">Properties</mark>
 
@@ -41,10 +41,10 @@ Debugger Options\
 
 Runs the debugger instance for message commands
 
-| PARAMETER | TYPE                                                                                                  | DETAILS                             | OPTIONAL |
-| --------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------- | -------- |
-| `message` | [Message](https://old.discordjs.dev/#/docs/discord.js/main/class/Message)                             | discord.js Message instance         | ❌        |
-| `args`    | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/String)\[] | Message args, including sub command | ✅        |
+| PARAMETER | TYPE                                                                                                 | DETAILS                             | OPTIONAL |
+| --------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------- | -------- |
+| `message` | [Message](https://old.discordjs.dev/#/docs/discord.js/main/class/Message)                            | discord.js Message instance         | ❌       |
+| `args`    | [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)\[] | Message args, including sub command | ✅       |
 
 **Returns**: [Promise](http://localhost:5000/s/iU5KWxOmgXDGCc70aX9C/weekly-syncs/company-weeklies)<[Message](https://old.discordjs.dev/#/docs/discord.js/main/class/Message)>
 
@@ -52,12 +52,10 @@ Runs the debugger instance for message commands
 
 ```typescript
 if (message.content.startsWith('!debug')) {
-    args = message.content.split(" ").slice(1);
+    args = message.content.split(' ').slice(1);
     await Debugger.messageRun(message, args);
 }
 ```
-
-
 
 ### .addOwner(`id`)
 
@@ -69,9 +67,9 @@ Add a `userId` to the owners array
 
 | PARAMETER | TYPE                                                                            | DETAILS | OPTIONAL |
 | --------- | ------------------------------------------------------------------------------- | ------- | -------- |
-| `id`      | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | User ID | ❌        |
+| `id`      | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | User ID | ❌       |
 
-**Returns**: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/String)\[]
+**Returns**: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)\[]
 
 **Examples**:
 
@@ -79,8 +77,6 @@ Add a `userId` to the owners array
 const owners = Debugger.addOwner('923925375657082931');
 console.log(`Owners: ${owners}`);
 ```
-
-
 
 ### .removeOwner(`id`)
 
@@ -92,9 +88,9 @@ Remove a `userId` from the owners array
 
 | PARAMETER | TYPE                                                                            | DETAILS | OPTIONAL |
 | --------- | ------------------------------------------------------------------------------- | ------- | -------- |
-| `id`      | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | User ID | ❌        |
+| `id`      | [Snowflake](https://old.discordjs.dev/#/docs/discord.js/main/typedef/Snowflake) | User ID | ❌       |
 
-**Returns**: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/String)\[]
+**Returns**: [string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)\[]
 
 **Examples**:
 

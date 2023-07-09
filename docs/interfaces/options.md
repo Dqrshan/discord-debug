@@ -1,7 +1,7 @@
 ---
 description: Options required for the Debugger client
 cover: >-
-  https://images.unsplash.com/photo-1604076850742-4c7221f3101b?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw0fHxncmFkaWVudHxlbnwwfHx8fDE2ODc2ODk2MDN8MA&ixlib=rb-4.0.3&q=85
+    https://images.unsplash.com/photo-1604076850742-4c7221f3101b?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHw0fHxncmFkaWVudHxlbnwwfHx8fDE2ODc2ODk2MDN8MA&ixlib=rb-4.0.3&q=85
 coverY: 0
 ---
 

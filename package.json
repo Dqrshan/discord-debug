@@ -19,7 +19,8 @@
     ],
     "scripts": {
         "build": "tsup src/index.ts --format cjs,esm --dts",
-        "lint": "tsc"
+        "lint": "tsc",
+        "format": "npx prettier --write ."
     },
     "repository": {
         "type": "git",
