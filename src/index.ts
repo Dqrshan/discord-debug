@@ -75,7 +75,10 @@ class Debugger {
      * @param client Discord Client
      * @param options Debugger options
      */
-    public constructor(public client: Client, public options?: Options) {
+    public constructor(
+        public client: Client,
+        public options?: Options
+    ) {
         if (!options)
             options = {
                 owners: [],

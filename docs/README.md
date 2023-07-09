@@ -8,7 +8,7 @@ coverY: 0
 # discord-debug
 
 {% hint style="info" %}
-Latest: ` v2.1.0``  `<mark style="color:blue;">`[latest]`</mark><mark style="color:green;">`[stable]`</mark>
+Latest: `v2.1.0`` `<mark style="color:blue;">`[latest]`</mark><mark style="color:green;">`[stable]`</mark>
 {% endhint %}
 
 ## Installation
