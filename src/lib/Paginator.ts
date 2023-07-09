@@ -226,7 +226,7 @@ export class Paginator {
             : `${codeBlock.construct(
                   this.splitted[this.page - 1]!,
                   this.options.lang
-              )}\n\nPage ${this.page}/${this.splitted.length}`;
+              )}\nPage ${this.page}/${this.splitted.length}`;
     }
 
     splitContent() {
