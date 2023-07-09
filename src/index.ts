@@ -151,21 +151,18 @@ class Debugger {
             await loadCommands();
             if (options?.registerApplicationCommands) {
                 const rest = new REST().setToken(core.token);
-                (async () => {
-                    try {
-                        await rest.put(
-                            Routes.applicationCommands(core.user.id),
-                            { body: [debugCommand.toJSON()] }
-                        );
+                try {
+                    await rest.put(Routes.applicationCommands(core.user.id), {
+                        body: [debugCommand.toJSON()]
+                    });
 
-                        this.log(
-                            `Registered debug application (/) command`,
-                            'info'
-                        );
-                    } catch (error) {
-                        this.log(error as string, 'error');
-                    }
-                })();
+                    this.log(
+                        `Registered debug application (/) command`,
+                        'info'
+                    );
+                } catch (error) {
+                    this.log(error as string, 'error');
+                }
             }
 
             this.log(
@@ -389,19 +386,19 @@ class Debugger {
         const prefix = black(` DEBUGGER : ${type.toUpperCase()} `);
         switch (type) {
             case 'error':
-                console.error(`[ ${bgRed(prefix)} ]: ${message}`);
+                console.error(`[${bgRed(prefix)}]: ${message}`);
                 break;
             case 'warn':
-                console.warn(`[ ${bgYellow(prefix + ' ')} ]: ${message}`);
+                console.warn(`[${bgYellow(prefix + ' ')}]: ${message}`);
                 break;
             case 'info':
-                console.info(`[ ${bgGreen(prefix + ' ')} ]: ${message}`);
+                console.info(`[${bgGreen(prefix + ' ')}]: ${message}`);
                 break;
             case 'debug':
-                console.debug(`[ ${bgBlue(prefix)} ]: ${message}`);
+                console.debug(`[${bgBlue(prefix)}]: ${message}`);
                 break;
             default:
-                console.log(`[ ${bold(white('DEBUGGER'))} ]: ${message}`);
+                console.log(`[${bold(white('DEBUGGER'))}]: ${message}`);
         }
     }
 }
