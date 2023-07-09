@@ -12,7 +12,7 @@ import fs from 'fs';
 import { commands, loadCommands } from './lib/Command';
 import { debugCommand } from './lib/constants';
 import fetch from 'node-fetch';
-import { capitalize, plural } from './lib';
+import { capitalize, codeBlock, plural } from './lib';
 import { ConnectionOptions } from 'mysql2';
 import { Doc, DocTypes } from 'discordjs-docs-parser';
 import { AsciiTable3 } from 'ascii-table3';
@@ -303,7 +303,12 @@ class Debugger {
         if (!command) return;
         if (command.messageRun) {
             try {
-                await command.messageRun(message, this, args.join(' '));
+                const code = codeBlock.parse(args.join(' '));
+                await command.messageRun(
+                    message,
+                    this,
+                    code ? code[2] : args.join(' ')
+                );
             } catch (error) {
                 this.log(error instanceof Error && error.stack, 'error');
             }
