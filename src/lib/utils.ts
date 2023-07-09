@@ -29,7 +29,7 @@ export class codeBlock {
     }
 }
 
-export function escapeRegex(string: string) {
+export const escapeRegex = (string: string) => {
     const str = String(string);
     const cpList = Array.from(str[Symbol.iterator]());
     const cuList = [];
@@ -41,18 +41,18 @@ export function escapeRegex(string: string) {
     }
     const L = cuList.join('');
     return L;
-}
+};
 
 export const isGenerator = (target: any) =>
     target &&
     typeof target.next === 'function' &&
     typeof target.throw === 'function';
 
-export function inspect(value: any, obj: any) {
+export const inspect = (value: any, obj: any) => {
     return util.inspect(value, obj);
-}
+};
 
-export function isInstance(target: any, Class: any) {
+export const isInstance = (target: any, Class: any) => {
     if (
         target instanceof Collection &&
         target.map((f) => f instanceof Class).includes(false)
@@ -65,9 +65,11 @@ export function isInstance(target: any, Class: any) {
         return false;
     } else if (!(target instanceof Class)) return false;
     else return true;
-}
+};
 
-export function typeFind(argument: any): 'NaN' | 'Class' | 'Function' | string {
+export const typeFind = (
+    argument: any
+): 'NaN' | 'Class' | 'Function' | string => {
     if (typeof argument === 'number' && isNaN(argument)) return 'NaN';
     const parsed = Object.prototype.toString.apply(argument);
     const obj = parsed.slice(1, 7);
@@ -76,9 +78,9 @@ export function typeFind(argument: any): 'NaN' | 'Class' | 'Function' | string {
     if (type === 'Function') {
         return /^class[\s{]/.test(String(argument)) ? 'Class' : 'Function';
     } else return type;
-}
+};
 
-export function table(obj: Record<string, any>) {
+export const table = (obj: Record<string, any>) => {
     clean(obj);
     const max =
         Object.keys(obj)
@@ -88,17 +90,17 @@ export function table(obj: Record<string, any>) {
     return Object.keys(obj)
         .map((key) => `${key}${' '.repeat(max - key.length)}:: ${obj[key]}`)
         .join('\n');
-}
+};
 
-function clean(obj: Record<string, any>) {
+const clean = (obj: Record<string, any>) => {
     for (const propName in obj) {
         if (!obj[propName]) {
             delete obj[propName];
         }
     }
-}
+};
 
-export function count(argument: any) {
+export const count = (argument: any) => {
     if (
         argument instanceof Map ||
         argument instanceof Set ||
@@ -135,7 +137,7 @@ export function count(argument: any) {
             .sort((a, b) => Number(b.ratio) - Number(a.ratio));
     }
     return null;
-}
+};
 
 export const warnEmbed = (
     header: string,
