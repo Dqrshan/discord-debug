@@ -48,16 +48,21 @@ const shell = async (
             ? '/bin/bash'
             : null);
     if (!shell) {
+        const em = warnEmbed(
+            'Shell not found',
+            'Unable to find your default shell.\nPlease set `process.env.SHELL`.',
+            'ERROR'
+        );
         return isMsg
-            ? message.reply(
-                  'Unable to find your default shell.\nPlease set `process.env.SHELL`.'
-              )
-            : await message.editReply(
-                  'Unable to find your default shell.\nPlease set `process.env.SHELL`.'
-              );
+            ? message.reply({
+                  embeds: [em]
+              })
+            : await message.editReply({
+                  embeds: [em]
+              });
     }
     const msg = new Paginator(message, `$ ${args}\n`, parent, {
-        lang: 'shell'
+        lang: 'ansi'
     });
     await msg.init();
 
