@@ -9,10 +9,17 @@ import {
 } from 'discord.js';
 
 import fs from 'fs';
-import { commands, loadCommands } from './lib/Command';
-import { debugCommand } from './lib/constants';
 import fetch from 'node-fetch';
-import { capitalize, codeBlock, plural } from './lib';
+import {
+    commands,
+    Commands,
+    applicationCommand,
+    capitalize,
+    codeBlock,
+    plural,
+    warnEmbed,
+    loadCommands
+} from './lib';
 import { ConnectionOptions } from 'mysql2';
 import { Doc, DocTypes } from 'discordjs-docs-parser';
 import { AsciiTable3 } from 'ascii-table3';
@@ -75,10 +82,7 @@ class Debugger {
      * @param client Discord Client
      * @param options Debugger options
      */
-    public constructor(
-        public client: Client,
-        public options?: Options
-    ) {
+    public constructor(public client: Client, public options?: Options) {
         if (!options)
             options = {
                 owners: [],
@@ -156,7 +160,7 @@ class Debugger {
                 const rest = new REST().setToken(core.token);
                 try {
                     await rest.put(Routes.applicationCommands(core.user.id), {
-                        body: [debugCommand.toJSON()]
+                        body: [applicationCommand.toJSON()]
                     });
 
                     this.log(
@@ -215,7 +219,7 @@ class Debugger {
 
                 if (sub) {
                     if (sub === 'help') {
-                        const cmds = commands.map((c) => c.name);
+                        const cmds = Commands.map((c) => c.name);
                         const focused = interaction.options.getFocused();
                         const filtered = cmds.filter((c) =>
                             c.includes(focused.toLowerCase())
@@ -275,8 +279,8 @@ class Debugger {
             }
 
             const command = interaction.options.getSubcommandGroup()
-                ? commands.get(interaction.options.getSubcommandGroup()!)
-                : commands.get(interaction.options.getSubcommand()!);
+                ? Commands.get(interaction.options.getSubcommandGroup()!)
+                : Commands.get(interaction.options.getSubcommand()!);
             if (!command) return;
             if (command.interactionRun) {
                 try {
@@ -285,6 +289,17 @@ class Debugger {
                         this
                     );
                 } catch (error) {
+                    if (interaction.deferred) {
+                        await interaction.editReply({
+                            embeds: [
+                                warnEmbed(
+                                    'Error',
+                                    (error as any).message,
+                                    'ERROR'
+                                )
+                            ]
+                        });
+                    }
                     this.log(error instanceof Error && error.stack, 'error');
                 }
             }
@@ -299,10 +314,10 @@ class Debugger {
 
         if (!this.owners.includes(message.author.id)) return;
         const cx = args.shift()!;
-        if (!cx) return commands.get('info')?.messageRun!(message, this, '');
+        if (!cx) return Commands.get('info')?.messageRun!(message, this, '');
         const command =
-            commands.get(cx) ||
-            commands.find((c) => c.aliases && c.aliases.includes(cx));
+            Commands.get(cx) ||
+            Commands.find((c) => c.aliases && c.aliases.includes(cx));
         if (!command) return;
         if (command.messageRun) {
             try {
@@ -313,6 +328,11 @@ class Debugger {
                     code ? code[2] : args.join(' ')
                 );
             } catch (error) {
+                message.reply({
+                    embeds: [
+                        warnEmbed('Error', (error as any).message, 'ERROR')
+                    ]
+                });
                 this.log(error instanceof Error && error.stack, 'error');
             }
         }
