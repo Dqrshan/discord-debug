@@ -4,3 +4,6 @@ export * from './utils';
 export * from './Paginator';
 export * from './HLJS';
 export * from './colors';
+export * from './Tree';
+export * from './constants';
+export * from './Command';

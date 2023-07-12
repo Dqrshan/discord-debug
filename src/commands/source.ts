@@ -5,25 +5,16 @@ import {
     ChatInputCommandInteraction,
     Message
 } from 'discord.js';
-import { Paginator, HLJS, warnEmbed } from '../lib';
+import { Paginator, HLJS, Tree, commands } from '../lib';
 import type { Debugger } from '../';
 import { Command } from '../lib/Command';
+import path from 'path';
 
 const command: Command = {
-    name: 'source',
-    aliases: ['src', 'file', 'cat'],
-    description: 'Shows the source code of a file',
+    name: commands.source.name,
+    aliases: commands.source.aliases,
+    description: commands.source.description,
     messageRun: async (message, parent, args) => {
-        if (!args)
-            return message.reply({
-                embeds: [
-                    warnEmbed(
-                        'Missing argument',
-                        'Please provide a file path',
-                        'ERROR'
-                    )
-                ]
-            });
         await source(message, parent, args);
     },
     interactionRun: async (interaction, parent) => {
@@ -31,20 +22,99 @@ const command: Command = {
         await source(
             interaction,
             parent,
-            interaction.options.getString('path', true)
+            interaction.options.getString('path', false)
         );
     }
 };
 
 export default command;
 
+const formatView = (filename: string) => {
+    const str = Tree.isHidden(filename.split('/')[0])
+        ? `\n[Hidden]`
+        : Tree.isIgnored(path.join(process.cwd(), filename))
+        ? `\n[Ignored by .gitignore]`
+        : Tree.print(filename);
+    return `${process.cwd()}/${filename}${str}`;
+};
+
 const source = async (
     message: Message | ChatInputCommandInteraction,
     parent: Debugger,
-    args: string
+    args: string | null
 ) => {
     const filename = args;
     let msg;
+    if (!filename) {
+        msg = new Paginator(
+            message,
+            `${process.cwd()}/` + Tree.print(process.cwd()),
+            parent,
+            { lang: 'yaml' }
+        );
+        await msg.init();
+        await msg.addAction([
+            {
+                button: new ButtonBuilder()
+                    .setStyle(ButtonStyle.Danger)
+                    .setCustomId('debug$prev')
+                    .setLabel('Prev'),
+                action: ({ manager }) => manager.previousPage(),
+                requirePage: true
+            },
+            {
+                button: new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setCustomId('debug$stop')
+                    .setLabel('Stop'),
+                action: ({ manager }) => manager.destroy(),
+                requirePage: true
+            },
+            {
+                button: new ButtonBuilder()
+                    .setStyle(ButtonStyle.Primary)
+                    .setCustomId('debug$next')
+                    .setLabel('Next'),
+                action: ({ manager }) => manager.nextPage(),
+                requirePage: true
+            }
+        ]);
+        return;
+    }
+    const isDirectory = fs.statSync(filename).isDirectory();
+    if (isDirectory) {
+        msg = new Paginator(message, formatView(filename), parent, {
+            lang: 'yaml'
+        });
+        await msg.init();
+        await msg.addAction([
+            {
+                button: new ButtonBuilder()
+                    .setStyle(ButtonStyle.Danger)
+                    .setCustomId('debug$prev')
+                    .setLabel('Prev'),
+                action: ({ manager }) => manager.previousPage(),
+                requirePage: true
+            },
+            {
+                button: new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setCustomId('debug$stop')
+                    .setLabel('Stop'),
+                action: ({ manager }) => manager.destroy(),
+                requirePage: true
+            },
+            {
+                button: new ButtonBuilder()
+                    .setStyle(ButtonStyle.Primary)
+                    .setCustomId('debug$next')
+                    .setLabel('Next'),
+                action: ({ manager }) => manager.nextPage(),
+                requirePage: true
+            }
+        ]);
+        return;
+    }
     fs.readFile(filename, async (err, data) => {
         if (err) {
             msg = new Paginator(message, err.toString(), parent, {
