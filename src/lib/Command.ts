@@ -25,7 +25,7 @@ export interface Command {
     ) => Promise<unknown>;
 }
 
-const commands = new Collection<string, Command>();
+const Commands = new Collection<string, Command>();
 
 export const loadCommands = async () => {
     const files = readdirSync(__dirname.replace('lib', 'commands')).filter(
@@ -34,8 +34,8 @@ export const loadCommands = async () => {
     for (const file of files) {
         const { default: command } = await import(`../commands/${file}`);
         if (!command || !command.name) continue;
-        commands.set(command.name, command);
+        Commands.set(command.name, command);
     }
 };
 
-export { commands };
+export { Commands };
