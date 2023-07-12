@@ -1,6 +1,69 @@
 import { SlashCommandBuilder } from 'discord.js';
 
-export const debugCommand = new SlashCommandBuilder()
+export const commands = {
+    info: {
+        name: 'info',
+        description: '[Default] Main debug information',
+        aliases: []
+    },
+    stats: {
+        name: 'stats',
+        description: "Returns the machine's statistics for this instance.",
+        aliases: ['statistics']
+    },
+    help: {
+        name: 'help',
+        description: 'List of all debug commands',
+        aliases: ['h']
+    },
+    curl: {
+        name: 'curl',
+        description: 'Curl hyper links',
+        aliases: []
+    },
+    docs: {
+        name: 'docs',
+        description: 'Searches the discord.js documentation',
+        aliases: []
+    },
+    eval: {
+        name: 'eval',
+        description: 'Evaluates a javascript code',
+        aliases: ['javascript', 'js', 'ev']
+    },
+    owners: {
+        name: 'owners',
+        description: 'Manage owners of the bot',
+        aliases: []
+    },
+    shard: {
+        name: 'shard',
+        description: 'Evaluates a javascript code on all shards',
+        aliases: []
+    },
+    shell: {
+        name: 'shell',
+        description: 'Executes a shell command',
+        aliases: ['sh', 'exec', 'bash']
+    },
+    source: {
+        name: 'source',
+        description: 'Shows the source code of a file',
+        aliases: ['src', 'file', 'cat']
+    },
+    sql: {
+        name: 'sql',
+        description: 'Executes a SQL query',
+        aliases: ['query']
+    },
+    type: {
+        name: 'type',
+        description: 'Returns type of evaluated javascript code',
+        aliases: ['jsi', 'jsinfo']
+    }
+};
+
+export const applicationCommand = new SlashCommandBuilder()
     .setName('debug')
     .setDescription('Debugging tool for this bot')
     .addSubcommand((sub) =>
@@ -129,8 +192,8 @@ export const debugCommand = new SlashCommandBuilder()
             .addStringOption((op) =>
                 op
                     .setName('path')
-                    .setDescription('Path to the file')
-                    .setRequired(true)
+                    .setDescription('Path to the file OR folder')
+                    .setRequired(false)
             )
     )
     .addSubcommand((sub) =>
