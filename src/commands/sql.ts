@@ -7,13 +7,13 @@ import {
 import { Command } from '../lib/Command';
 import { Debugger } from '..';
 import { AsciiTable3 } from 'ascii-table3';
-import { Paginator, plural, warnEmbed } from '../lib';
+import { Paginator, commands, plural, warnEmbed } from '../lib';
 import { createConnection } from 'mysql2';
 
 const command: Command = {
-    name: 'sql',
-    description: 'Executes a SQL query',
-    aliases: ['query'],
+    name: commands.sql.name,
+    description: commands.sql.description,
+    aliases: commands.sql.aliases,
     messageRun: async (message, parent, args) => {
         if (!args)
             return message.reply({

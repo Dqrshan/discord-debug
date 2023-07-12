@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Message } from 'discord.js';
 import type { Debugger } from '..';
 import { Command } from '../lib/Command';
-import { warnEmbed } from '../lib';
+import { commands, warnEmbed } from '../lib';
 
 const command: Command = {
-    name: 'owners',
-    description: 'Manage owners of the bot',
+    name: commands.owners.name,
+    description: commands.owners.description,
     messageRun: async (message, parent, args) => {
         await owners(message, parent, args);
     },

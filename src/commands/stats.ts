@@ -8,12 +8,12 @@ import {
 import { Command } from '../lib/Command';
 import { Debugger } from '..';
 import os from 'node:os';
-import { DateFormat, System, plural } from '../lib';
+import { DateFormat, System, commands, plural } from '../lib';
 
 const command: Command = {
-    name: 'stats',
-    aliases: ['statistics'],
-    description: "View the machine's statistics for this instance.",
+    name: commands.stats.name,
+    aliases: commands.stats.aliases,
+    description: commands.stats.description,
     messageRun: async (message, parent, __) => {
         await stats(message, parent);
     },

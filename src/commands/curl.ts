@@ -3,10 +3,11 @@ import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import { Paginator, HLJS, warnEmbed } from '../lib';
 import type { Debugger } from '../';
 import { Command } from '../lib/Command';
+import { commands } from '../lib';
 
 const command: Command = {
-    name: 'curl',
-    description: 'Curl hyper links',
+    name: commands.curl.name,
+    description: commands.curl.description,
     messageRun: async (message: Message, parent: Debugger, args: string) => {
         if (!args)
             return message.reply({

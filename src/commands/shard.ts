@@ -6,12 +6,12 @@ import {
     Message
 } from 'discord.js';
 import type { Debugger } from '../';
-import { Paginator, inspect, warnEmbed } from '../lib';
+import { Paginator, commands, inspect, warnEmbed } from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
-    name: 'shard',
-    description: 'Evaluates a javascript code on all shards',
+    name: commands.shard.name,
+    description: commands.shard.description,
     messageRun: async (message, parent, args) => {
         await shard(message, parent, args);
     },

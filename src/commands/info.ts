@@ -7,12 +7,12 @@ import {
     version as djsVersion
 } from 'discord.js';
 import type { Debugger } from '..';
-import { System, DateFormat } from '../lib';
+import { System, DateFormat, commands } from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
-    name: 'info',
-    description: '[Default] Main debug information',
+    name: commands.info.name,
+    description: commands.info.description,
     messageRun: async (message, parent, _args) => {
         await info(message, parent);
     },

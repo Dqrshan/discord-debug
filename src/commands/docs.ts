@@ -16,11 +16,11 @@ import {
     DocFunction,
     DocTypes
 } from 'discordjs-docs-parser';
-import { codeBlock, warnEmbed } from '../lib';
+import { codeBlock, commands, warnEmbed } from '../lib';
 
 const command: Command = {
-    name: 'docs',
-    description: 'Searches the discord.js documentation',
+    name: commands.docs.name,
+    description: commands.docs.description,
     interactionRun: async (interaction, parent) => {
         await interaction.deferReply({
             fetchReply: true

@@ -1,13 +1,13 @@
 import child from 'child_process';
 import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import type { Debugger } from '../';
-import { Paginator, codeBlock, warnEmbed } from '../lib';
+import { Paginator, codeBlock, commands, warnEmbed } from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
-    name: 'shell',
-    aliases: ['sh', 'exec', 'bash'],
-    description: 'Executes a shell command',
+    name: commands.shell.name,
+    aliases: commands.shell.aliases,
+    description: commands.shell.description,
     messageRun: async (message, parent, args) => {
         if (!args)
             return message.reply({

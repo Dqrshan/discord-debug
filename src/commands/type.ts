@@ -1,12 +1,20 @@
 import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import type { Debugger } from '..';
-import { Paginator, count, inspect, table, typeFind, warnEmbed } from '../lib';
+import {
+    Paginator,
+    commands,
+    count,
+    inspect,
+    table,
+    typeFind,
+    warnEmbed
+} from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
-    name: 'type',
-    aliases: ['jsi', 'jsinfo'],
-    description: 'Returns the type of evaluated code',
+    name: commands.type.name,
+    aliases: commands.type.aliases,
+    description: commands.type.description,
     messageRun: async (message: Message, parent: Debugger, args: string) => {
         if (!args)
             return message.reply({

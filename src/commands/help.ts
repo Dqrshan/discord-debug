@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder } from 'discord.js';
-import { Command, commands } from '../lib/Command';
+import { Command, commands, Commands } from '../lib';
 import { capitalize } from '../lib';
 import { Debugger } from '..';
 
 const command: Command = {
-    name: 'help',
-    aliases: ['h'],
-    description: 'List of all debug commands',
+    name: commands.help.name,
+    aliases: commands.help.aliases,
+    description: commands.help.description,
     messageRun: async (message, parent, args) => {
         await help(message, args, parent);
     },
@@ -25,18 +25,18 @@ const help = async (
 ) => {
     if (
         cmd &&
-        (commands.some((c) => c.name === cmd.toLowerCase()) ||
-            commands.some((c) => c.aliases?.includes(cmd.toLowerCase())))
+        (Commands.some((c) => c.name === cmd.toLowerCase()) ||
+            Commands.some((c) => c.aliases?.includes(cmd.toLowerCase())))
     ) {
         const command =
-            commands.get(cmd.toLowerCase()) ||
-            commands.find(
+            Commands.get(cmd.toLowerCase()) ||
+            Commands.find(
                 (c) => c.aliases && c.aliases.includes(cmd.toLowerCase())
             );
         const embed = new EmbedBuilder()
             .setTitle(`${capitalize(command?.name!)}`)
             .setURL(
-                `https://lxrnz.gitbook.io/discord-debug/commands/${command?.name}`
+                `https://lxrnz.gitbook.io/discord-debug/Commands/${command?.name}`
             )
             .setColor(parent.options!.themeColor!)
             .setFields(
@@ -62,9 +62,9 @@ const help = async (
         return ctx.reply({ embeds: [embed] });
     }
     const embed = new EmbedBuilder()
-        .setTitle(`Available Commands (${commands.size})`)
+        .setTitle(`Available Commands (${Commands.size})`)
         .setDescription(
-            commands.map((c) => `\`${capitalize(c.name)}\``).join(', ')
+            Commands.map((c) => `\`${capitalize(c.name)}\``).join(', ')
         )
         .setColor(parent.options!.themeColor!)
         .setThumbnail(ctx.client.user.displayAvatarURL())

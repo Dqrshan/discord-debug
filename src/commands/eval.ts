@@ -4,13 +4,20 @@ import Discord, {
     Message
 } from 'discord.js';
 import type { Debugger } from '..';
-import { Paginator, inspect, isInstance, isGenerator, warnEmbed } from '../lib';
+import {
+    Paginator,
+    inspect,
+    isInstance,
+    isGenerator,
+    warnEmbed,
+    commands
+} from '../lib';
 import { Command } from '../lib/Command';
 
 const command: Command = {
-    name: 'eval',
-    aliases: ['javascript', 'js'],
-    description: 'Evaluates a javascript code',
+    name: commands.eval.name,
+    aliases: commands.eval.aliases,
+    description: commands.eval.description,
     messageRun: async (message, parent, args) => {
         if (!args)
             return message.reply({
