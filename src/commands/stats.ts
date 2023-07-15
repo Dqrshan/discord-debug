@@ -51,7 +51,7 @@ const stats = async (
 
     const embed = new EmbedBuilder()
         .setTitle(
-            `${os.hostname} ${inlineCode(
+            `${os.hostname()} ${inlineCode(
                 os.machine()
             )}, ${os.type()} ${inlineCode(os.arch())}`
         )
