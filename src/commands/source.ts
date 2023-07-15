@@ -8,7 +8,7 @@ import {
 import { Paginator, HLJS, Tree, commands } from '../lib';
 import type { Debugger } from '../';
 import { Command } from '../lib/Command';
-import path from 'path';
+import path from 'node:path';
 
 const command: Command = {
     name: commands.source.name,
@@ -30,12 +30,15 @@ const command: Command = {
 export default command;
 
 const formatView = (filename: string) => {
+    if (filename.endsWith('/')) filename = filename.slice(0, -1);
     const str = Tree.isHidden(filename.split('/')[0])
         ? `\n[Hidden]`
         : Tree.isIgnored(path.join(process.cwd(), filename))
         ? `\n[Ignored by .gitignore]`
         : Tree.print(filename);
-    return `${process.cwd()}/${filename}${str}`;
+    return `${process.cwd()}/${filename}/\n📂 ${
+        filename.split('/')[filename.split('/').length - 1]
+    }${str}`;
 };
 
 const source = async (
