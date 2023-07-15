@@ -1,4 +1,4 @@
-import util from 'util';
+import util from 'node:util';
 import { Collection, ColorResolvable, EmbedBuilder } from 'discord.js';
 import { escapeCodeBlock } from 'discord.js';
 

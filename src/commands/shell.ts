@@ -1,4 +1,4 @@
-import child from 'child_process';
+import child from 'node:child_process';
 import Discord, { ChatInputCommandInteraction, Message } from 'discord.js';
 import type { Debugger } from '../';
 import { Paginator, codeBlock, commands, warnEmbed } from '../lib';
