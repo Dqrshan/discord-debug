@@ -9,7 +9,7 @@
  */
 
 // importing required dependencies
-import { Debugger, commands } from '../../dist';
+import { Debugger, Commands } from '../../dist'; // replace with 'discord-debug' in your projects
 import {
     ChatInputCommandInteraction,
     Client,
@@ -71,7 +71,7 @@ client.on('interactionCreate', async (interaction) => {
     /**
      * @info note that we're using our discord-debug commands collection!
      */
-    const command = commands.get(interaction.commandName); // get the command
+    const command = Commands.get(interaction.commandName); // get the command
 
     // ignore if there's no command, or if there's no interactionRun function
     if (!command || !command.interactionRun) return;

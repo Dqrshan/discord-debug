@@ -9,7 +9,7 @@
  */
 
 // importing required dependencies
-import { Debugger, commands } from '../../dist'; // replace with 'discord-debug' in your projects
+import { Debugger, Commands } from '../../dist'; // replace with 'discord-debug' in your projects
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { Command } from '../../dist/lib/Command'; // replace with 'discord-debug/lib/Command' in your projects
 
@@ -26,14 +26,11 @@ const client = new Client({
 });
 
 // initializing discord-debug client
-const debug = new Debugger(client, {
-    // we don't need this, as we're registering our own commands
-    registerApplicationCommands: false
-});
+const debug = new Debugger(client);
 
 // registering our own commands collection
 client.commands = new Collection();
-commands.forEach((command) => {
+Commands.forEach((command) => {
     /**
      * @info
      * Leaving the editing part up to you!
