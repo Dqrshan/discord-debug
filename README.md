@@ -62,6 +62,8 @@ const debug = new Debugger(client, {
     sqlConnectionOptions: {
         uri: 'mysql://root:password@localhost:3306/database'
     }
+    // Fetch owners from application (default: true)
+    fetchOwners: true
 });
 
 client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
