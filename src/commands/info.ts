@@ -1,14 +1,14 @@
 import {
+    ApplicationFlags,
     ChatInputCommandInteraction,
     EmbedBuilder,
-    GatewayIntentBits,
-    IntentsBitField,
     Message,
     version as djsVersion
 } from 'discord.js';
 import type { Debugger } from '..';
 import { System, DateFormat, commands } from '../lib';
 import { Command } from '../lib/Command';
+import fetch from 'node-fetch';
 
 const command: Command = {
     name: commands.info.name,
@@ -28,7 +28,6 @@ const info = async (
     message: Message | ChatInputCommandInteraction,
     parent: Debugger
 ) => {
-    const intents = new IntentsBitField(parent.client.options.intents);
     const embed = new EmbedBuilder()
         .setTitle(
             `discord.js \`${djsVersion}\`, \`Node.js ${process.version}\` on \`${process.platform}\``
@@ -68,20 +67,50 @@ const info = async (
         summary += `\t- Running on PID ${process.pid}\n\nThis bot is not sharded and can see ${cache}.`;
     }
 
+    const application = (await (
+        await fetch(
+            `https://discord.com/api/v10/applications/${
+                parent.client.user!.id
+            }/rpc`
+        )
+    ).json()) as {
+        flags: number;
+    };
+    const flags = {
+        GuildMembers:
+            (application.flags & ApplicationFlags.GatewayGuildMembers) ==
+                ApplicationFlags.GatewayGuildMembers ||
+            (application.flags & ApplicationFlags.GatewayGuildMembersLimited) ==
+                ApplicationFlags.GatewayGuildMembersLimited,
+        GuildPresences:
+            (application.flags & ApplicationFlags.GatewayPresence) ==
+                ApplicationFlags.GatewayPresence ||
+            (application.flags & ApplicationFlags.GatewayPresenceLimited) ==
+                ApplicationFlags.GatewayPresenceLimited,
+        MessageContent:
+            (application.flags & ApplicationFlags.GatewayMessageContent) ==
+                ApplicationFlags.GatewayMessageContent ||
+            (application.flags &
+                ApplicationFlags.GatewayMessageContentLimited) ==
+                ApplicationFlags.GatewayMessageContentLimited
+    };
+
     embed
         .setDescription(summary)
         .addFields({
             name: 'Privileged Intents',
-            value: [
-                GatewayIntentBits.GuildPresences,
-                GatewayIntentBits.GuildMembers,
-                GatewayIntentBits.MessageContent
-            ]
+            value: Object.keys(flags)
                 .map(
-                    (u) =>
-                        `- ${intents.has(u) ? `✅` : `❌`} \`${
-                            GatewayIntentBits[u]
-                        }\``
+                    (k) =>
+                        `- ${
+                            flags[
+                                k as
+                                    | 'GuildMembers'
+                                    | 'GuildPresences' as 'MessageContent'
+                            ]
+                                ? '✅'
+                                : '❌'
+                        } \`${k}\``
                 )
                 .join('\n')
         })
