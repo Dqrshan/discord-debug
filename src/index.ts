@@ -69,6 +69,7 @@ export interface Options {
     };
     themeColor?: `#${string}`;
     sqlConnectionOptions?: ConnectionOptions;
+    fetchOwners?: boolean | true;
 }
 
 Doc.setGlobalOptions({
@@ -93,7 +94,8 @@ class Debugger {
                     interaction: true
                 },
                 themeColor: '#000000',
-                sqlConnectionOptions: {}
+                sqlConnectionOptions: {},
+                fetchOwners: true
             };
         /** load debug.config */
         fs.readFileSync('debug.config', { flag: 'a+' });
@@ -178,36 +180,42 @@ class Debugger {
                     : `${plural(
                           options.owners.length,
                           'owner'
-                      )} provided, fetching from application...`,
+                      )} provided${options.fetchOwners ? ", fetching from application..." : "."}`,
                 'warn'
             );
-            core.application?.fetch().then((app) => {
-                if (!app?.owner)
-                    return this.log(
-                        'Application owner could not be fetched.',
-                        'error'
+
+            if (options?.fetchOwners || !options?.owners || !options?.owners?.length) {
+                core.application?.fetch().then((app) => {
+                    if (!app?.owner)
+                        return this.log(
+                            'Application owner could not be fetched.',
+                            'error'
+                        );
+
+                    if (app.owner instanceof Team)
+                        this.owners.push(...app.owner.members
+                            .filter((m) => !this.owners.includes(m.id))
+                            .map((m) => m.id));
+                    else
+                        this.owners = this.owners.includes(app.owner.id)
+                            ? this.owners
+                            : [...this.owners, app.owner.id];
+                    this.log(
+                        `Fetched ${plural(
+                            app.owner instanceof Team
+                                ? app.owner.members.size
+                                : 1,
+                            'owner'
+                        )} from application, ${plural(
+                            this._syncOwners().length,
+                            'existing owner'
+                        )}.`,
+                        'info'
                     );
 
-                if (app.owner instanceof Team)
-                    this.owners = app.owner.members
-                        .filter((m) => !this.owners.includes(m.id))
-                        .map((m) => m.id);
-                else
-                    this.owners = this.owners.includes(app.owner.id)
-                        ? this.owners
-                        : [app.owner.id];
-                this.log(
-                    `Fetched ${plural(
-                        app.owner instanceof Team ? app.owner.members.size : 1,
-                        'owner'
-                    )} from application, ${plural(
-                        this._syncOwners().length,
-                        'existing owner'
-                    )}.`,
-                    'info'
-                );
-                this.owners.forEach((id) => this.addOwner(id));
-            });
+                    this.owners.forEach((id) => this.addOwner(id));
+                });
+            }
         });
 
         client.on('interactionCreate', async (interaction) => {
