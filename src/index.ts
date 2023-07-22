@@ -11,7 +11,6 @@ import {
 import fs from 'node:fs';
 import fetch from 'node-fetch';
 import {
-    commands,
     Commands,
     applicationCommand,
     capitalize,
@@ -177,14 +176,19 @@ class Debugger {
             this.log(
                 !options?.owners || !options?.owners?.length
                     ? `No owners were provided, fetching from application...`
-                    : `${plural(
-                          options.owners.length,
-                          'owner'
-                      )} provided${options.fetchOwners ? ", fetching from application..." : "."}`,
+                    : `${plural(options.owners.length, 'owner')} provided${
+                          options.fetchOwners
+                              ? ', fetching from application...'
+                              : '.'
+                      }`,
                 'warn'
             );
 
-            if (options?.fetchOwners || !options?.owners || !options?.owners?.length) {
+            if (
+                options?.fetchOwners ||
+                !options?.owners ||
+                !options?.owners?.length
+            ) {
                 core.application?.fetch().then((app) => {
                     if (!app?.owner)
                         return this.log(
@@ -193,9 +197,11 @@ class Debugger {
                         );
 
                     if (app.owner instanceof Team)
-                        this.owners.push(...app.owner.members
-                            .filter((m) => !this.owners.includes(m.id))
-                            .map((m) => m.id));
+                        this.owners.push(
+                            ...app.owner.members
+                                .filter((m) => !this.owners.includes(m.id))
+                                .map((m) => m.id)
+                        );
                     else
                         this.owners = this.owners.includes(app.owner.id)
                             ? this.owners
@@ -439,5 +445,5 @@ class Debugger {
     }
 }
 
-export { Debugger, commands as Commands };
+export { Debugger, Commands };
 export * as Utils from './lib';
