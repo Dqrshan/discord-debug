@@ -106,7 +106,8 @@ const info = async (
                             flags[
                                 k as
                                     | 'GuildMembers'
-                                    | 'GuildPresences' as 'MessageContent'
+                                    | 'GuildPresences'
+                                    | 'MessageContent'
                             ]
                                 ? '✅'
                                 : '❌'
