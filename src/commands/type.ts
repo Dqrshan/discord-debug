@@ -48,7 +48,13 @@ const jsi = async (
     // @ts-ignore
     const { client } = parent; // for eval
 
-    const res = new Promise((resolve) => resolve(eval(args ?? '')));
+    const res = new Promise((resolve) =>
+        resolve(
+            args.includes('await') || args.includes('return')
+                ? eval(`(async () => {\n${args ?? ''}\n})()`)
+                : eval(args ?? '')
+        )
+    );
     let msg!: Paginator;
     await res
         .then((output: any) => {
